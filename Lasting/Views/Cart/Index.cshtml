@@ -1,0 +1,65 @@
+﻿@model IEnumerable<CartItem>
+
+<div class="container mt-5">
+    <h2>Giỏ hàng của bạn</h2>
+
+    @if (Model.Any())
+    {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Tổng</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                            <tr>
+                                <td>
+                                    <img src="@item.Product.ImageUrl" width="50" height="50" />
+                            @item.Product.Name
+                                </td>
+                                <td>@item.Product.Price.ToString("N0") đ</td>
+                                <td>
+                                    <form asp-action="UpdateQuantity" method="post">
+                                        <input type="hidden" name="cartItemId" value="@item.Id" />
+                                        <input type="number" name="newQuantity" value="@item.Quantity" min="1" class="form-control" style="width: 70px; display: inline-block;" />
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Cập nhật</button>
+                                    </form>
+                                </td>
+                                <td>@((item.Product.Price * item.Quantity).ToString("N0")) đ</td>
+                                <td>
+                                    <form asp-action="RemoveFromCart" method="post">
+                                        <input type="hidden" name="cartItemId" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
+                }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                        <td><strong>@Model.Sum(i => i.Product.Price * i.Quantity).ToString("N0")) đ</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="text-end">
+                <a href="/Home/Products" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
+                <a href="/Checkout" class="btn btn-primary">Thanh toán</a>
+            </div>
+    }
+    else
+    {
+            <div class="alert alert-info">
+                Giỏ hàng của bạn đang trống
+            </div>
+            <a href="/Home/Products" class="btn btn-primary">Mua sắm ngay</a>
+    }
+</div>
