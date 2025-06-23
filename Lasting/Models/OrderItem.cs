@@ -1,4 +1,6 @@
-﻿namespace Lasting.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Lasting.Models
 {
     public class OrderItem
     {
@@ -8,6 +10,7 @@
         public int ProductId { get; set; }
         public Product Product { get; set; }
         public int Quantity { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
     }
 }

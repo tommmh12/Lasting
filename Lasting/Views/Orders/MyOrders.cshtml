@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Lasting.Models.Order>
+
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4 text-center">🛍 Lịch sử mua hàng của bạn</h2>
+
+    @if (!Model.Any())
+    {
+            <div class="alert alert-info text-center">
+                Bạn chưa có đơn hàng nào.
+            </div>
+    }
+    else
+    {
+            <table class="table table-hover shadow-sm border">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng tiền</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var order in Model)
+                {
+                        <tr>
+                            <td>#@order.Id</td>
+                            <td>@order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><span class="badge bg-success">@order.Status</span></td>
+                            <td>@order.TotalAmount.ToString("N0") đ</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary btn-sm">
+                                    Xem chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                }
+                </tbody>
+            </table>
+    }
+</div>

@@ -59,3 +59,66 @@ body {
     font-size: 5rem;
     color: #28a745;
 }
+/* Hiệu ứng nav-link underline */
+.nav-link {
+    position: relative;
+    transition: color 0.3s;
+}
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0%;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: #f04c2f;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .nav-link:hover {
+        color: #f04c2f !important;
+    }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+/* Search box animation */
+.search-box {
+    background-color: #f2f2f2;
+    border-radius: 20px;
+    padding: 5px 12px;
+    transition: box-shadow 0.3s;
+}
+
+    .search-box:focus-within {
+        box-shadow: 0 0 6px rgba(240, 76, 47, 0.4);
+    }
+
+.search-input {
+    border: none;
+    background: transparent;
+    width: 150px;
+    transition: width 0.3s ease;
+}
+
+    .search-input:focus {
+        width: 200px;
+    }
+
+/* Icon hover zoom */
+.bi {
+    transition: transform 0.2s ease;
+}
+
+    .bi:hover {
+        transform: scale(1.2);
+    }
+
+/* Button hiệu ứng */
+.btn-dark:hover {
+    background: linear-gradient(90deg, #111, #f04c2f);
+    border-color: #f04c2f;
+    color: white;
+}

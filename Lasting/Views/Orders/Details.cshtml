@@ -1,0 +1,62 @@
+﻿@model Lasting.Models.Order
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+}
+
+<div class="container my-5">
+    <h2 class="mb-4 text-center">🧾 Đơn hàng #@Model.Id</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h5>📦 Thông tin đơn hàng</h5>
+            <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+            <p><strong>Trạng thái:</strong> <span class="badge bg-success">@Model.Status</span></p>
+        </div>
+        <div class="col-md-6">
+            <h5>🚚 Địa chỉ giao hàng</h5>
+            <p><strong>@Model.ShippingAddress.FullName</strong></p>
+            <p>@Model.ShippingAddress.AddressLine1 @Model.ShippingAddress.AddressLine2</p>
+            <p>@Model.ShippingAddress.City</p>
+            <p>📞 @Model.ShippingAddress.PhoneNumber</p>
+        </div>
+    </div>
+
+    <h5 class="mb-3">🛒 Sản phẩm</h5>
+    <table class="table table-bordered shadow-sm">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>@item.Product?.Name</td>
+                    <td>@item.Price.ToString("N0") đ</td>
+                    <td>@item.Quantity</td>
+                    <td>@(item.Price * item.Quantity).ToString("N0") đ</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                <td><strong>@Model.TotalAmount.ToString("N0") đ</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="mt-4 text-end">
+        <a asp-action="DownloadInvoice" asp-route-id="@Model.Id" class="btn btn-danger me-2">
+            🧾 Xuất hóa đơn PDF
+        </a>
+        <a asp-action="MyOrders" class="btn btn-secondary">
+            ← Quay lại danh sách đơn
+        </a>
+    </div>
+</div>

@@ -1,18 +1,28 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lasting.Models
 {
+    [Owned]
     public class ShippingAddress
     {
-        [Key]
-        public int Id { get; set; }
+        [Required]
+        [MaxLength(100)]
         public string FullName { get; set; }
+
+        [Required]
+        [MaxLength(200)]
         public string AddressLine1 { get; set; }
+
+        [MaxLength(200)]
         public string AddressLine2 { get; set; }
+
+        [Required]
+        [MaxLength(100)]
         public string City { get; set; }
-        public string State { get; set; }
-        public string PostalCode { get; set; }
-        public string Country { get; set; }
+
+        [Required]
+        [MaxLength(20)]
         public string PhoneNumber { get; set; }
     }
 }
