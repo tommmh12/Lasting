@@ -12,6 +12,14 @@
             <h2>Create a new account.</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <!-- Thêm trường FullName -->
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FullName" class="form-control" autocomplete="name" aria-required="true" placeholder="Your full name" />
+                <label asp-for="Input.FullName">Full Name</label>
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+
             <div class="form-floating mb-3">
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 <label asp-for="Input.Email">Email</label>
@@ -37,25 +45,25 @@
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) == 0)
                 {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
+                            <div>
+                                <p>
+                                    There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+                                    about setting up this ASP.NET application to support logging in via external services</a>.
+                                </p>
+                            </div>
                 }
                 else
                 {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
+                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                <div>
+                                    <p>
                                 @foreach (var provider in Model.ExternalLogins!)
                                 {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
                                 }
-                            </p>
-                        </div>
-                    </form>
+                                    </p>
+                                </div>
+                            </form>
                 }
             }
         </section>
@@ -63,5 +71,28 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+        <!-- Đảm bảo jQuery được load trước các validation scripts -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <partial name="_ValidationScriptsPartial" />
+
+        <!-- Script xử lý lỗi nếu có -->
+        <script>
+            $(document).ready(function() {
+                // Kiểm tra nếu có lỗi validation
+                if ($(".validation-summary-errors").length > 0) {
+                    $("html, body").animate({
+                        scrollTop: $("#registerForm").offset().top
+                    }, 500);
+                }
+
+                // Xử lý khi submit form
+                $("#registerForm").on("submit", function() {
+                    if (!$(this).valid()) {
+                        return false;
+                    }
+                    $("#registerSubmit").prop("disabled", true);
+                    $("#registerSubmit").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registering...');
+                });
+            });
+        </script>
 }

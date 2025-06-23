@@ -25,18 +25,36 @@
                                 </td>
                                 <td>@item.Product.Price.ToString("N0") đ</td>
                                 <td>
-                                    <form asp-action="UpdateQuantity" method="post">
-                                        <input type="hidden" name="cartItemId" value="@item.Id" />
-                                        <input type="number" name="newQuantity" value="@item.Quantity" min="1" class="form-control" style="width: 70px; display: inline-block;" />
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">Cập nhật</button>
-                                    </form>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                            <form asp-action="UpdateQuantity" method="post">
+                                                <input type="hidden" name="cartItemId" value="@item.Id" />
+                                                <input type="number" name="newQuantity" value="@item.Quantity" min="1" 
+                                                       class="form-control" style="width: 70px; display: inline-block;" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Cập nhật</button>
+                                            </form>
+                            }
+                            else
+                            {
+                                            <input type="number" value="@item.Quantity" min="1" 
+                                                   class="form-control" style="width: 70px; display: inline-block;"
+                                                   onchange="updateTempCartQuantity(@item.ProductId, this.value)" />
+                            }
                                 </td>
                                 <td>@((item.Product.Price * item.Quantity).ToString("N0")) đ</td>
                                 <td>
-                                    <form asp-action="RemoveFromCart" method="post">
-                                        <input type="hidden" name="cartItemId" value="@item.Id" />
-                                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                                    </form>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                            <form asp-action="RemoveFromCart" method="post">
+                                                <input type="hidden" name="cartItemId" value="@item.Id" />
+                                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                            </form>
+                            }
+                            else
+                            {
+                                            <button onclick="removeFromTempCart(@item.ProductId)" 
+                                                    class="btn btn-sm btn-danger">Xóa</button>
+                            }
                                 </td>
                             </tr>
                 }
@@ -52,7 +70,10 @@
 
             <div class="text-end">
                 <a href="/Home/Products" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
-                <a href="/Checkout" class="btn btn-primary">Thanh toán</a>
+                <a href="@(User.Identity.IsAuthenticated ? "/Checkout" : "/Identity/Account/Login")" 
+                   class="btn btn-primary">
+                    Thanh toán
+                </a>
             </div>
     }
     else
@@ -63,3 +84,37 @@
             <a href="/Home/Products" class="btn btn-primary">Mua sắm ngay</a>
     }
 </div>
+
+@section Scripts {
+        <script>
+            function updateTempCartQuantity(productId, quantity) {
+                fetch('/Cart/UpdateTempCartItem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId: productId, quantity: parseInt(quantity) })
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+
+            function removeFromTempCart(productId) {
+                if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                    fetch('/Cart/RemoveTempCartItem', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId: productId })
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        }
+                    });
+                }
+            }
+        </script>
+}

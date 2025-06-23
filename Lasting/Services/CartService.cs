@@ -1,18 +1,45 @@
 ﻿using Lasting.Data;
 using Lasting.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Lasting.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Lasting.Services
 {
     public class CartService : ICartService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IProductService _productService;
 
-        public CartService(ApplicationDbContext context)
+        public CartService(ApplicationDbContext context,
+                         IHttpContextAccessor httpContextAccessor,
+                         IProductService productService)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
+            _productService = productService;
         }
 
+        #region Private Methods
+        private List<TempCartItem> GetTempCart()
+        {
+            var session = _httpContextAccessor.HttpContext.Session;
+            return session.Get<List<TempCartItem>>("TempCart") ?? new List<TempCartItem>();
+        }
+
+        private void SaveTempCart(List<TempCartItem> tempCart)
+        {
+            var session = _httpContextAccessor.HttpContext.Session;
+            session.Set("TempCart", tempCart);
+        }
+        #endregion
+
+        #region Authenticated User Methods
         public async Task<IEnumerable<CartItem>> GetCartItemsAsync(string userId)
         {
             return await _context.CartItems
@@ -43,7 +70,6 @@ namespace Lasting.Services
                 };
                 _context.CartItems.Add(newItem);
             }
-
             await _context.SaveChangesAsync();
         }
 
@@ -95,5 +121,61 @@ namespace Lasting.Services
             _context.CartItems.RemoveRange(items);
             await _context.SaveChangesAsync();
         }
+        #endregion
+
+        #region Guest User Methods
+        public async Task<List<TempCartItem>> GetTempCartAsync()
+        {
+            return GetTempCart();
+        }
+
+        public async Task<int> GetTempCartCountAsync()
+        {
+            var tempCart = GetTempCart();
+            return tempCart.Sum(item => item.Quantity);
+        }
+
+        public async Task<decimal> GetTempCartTotalAsync()
+        {
+            var tempCart = GetTempCart();
+            return tempCart.Sum(item => item.Price * item.Quantity);
+        }
+
+        public async Task UpdateTempCartItemAsync(int productId, int quantity)
+        {
+            var tempCart = GetTempCart();
+            var item = tempCart.FirstOrDefault(x => x.ProductId == productId);
+
+            if (item != null)
+            {
+                item.Quantity = quantity;
+                SaveTempCart(tempCart);
+            }
+        }
+
+        public async Task RemoveTempCartItemAsync(int productId)
+        {
+            var tempCart = GetTempCart();
+            tempCart.RemoveAll(x => x.ProductId == productId);
+            SaveTempCart(tempCart);
+        }
+        #endregion
+
+        #region Merge Cart
+        public async Task MergeCartAsync(string userId)
+        {
+            var tempCart = GetTempCart();
+            if (tempCart.Any())
+            {
+                foreach (var item in tempCart)
+                {
+                    await AddToCartAsync(userId, item.ProductId, item.Quantity);
+                }
+
+                // Xóa giỏ hàng tạm sau khi hợp nhất
+                SaveTempCart(new List<TempCartItem>());
+            }
+        }
+        #endregion
     }
 }
