@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lasting.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250623140256_InitCheckoutModels")]
-    partial class InitCheckoutModels
+    [Migration("20250623153711_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

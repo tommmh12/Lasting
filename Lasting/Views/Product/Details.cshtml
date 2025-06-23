@@ -1,0 +1,116 @@
+﻿@model Lasting.Models.Product
+
+@{
+    ViewData["Title"] = "Chi Tiết Sản Phẩm";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-6">
+            <div class="mb-3">
+                <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Name" id="mainImage">
+            </div>
+            @if (Model.IsFeatured)
+            {
+                <span class="badge bg-danger position-absolute top-0 start-0 m-3">Nổi bật</span>
+            }
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-6">
+            <h2 class="fw-bold">@Model.Name</h2>
+
+            <!-- Price -->
+            <div class="mb-3">
+                @if (Model.OldPrice > 0)
+                {
+                    <span class="text-danger fs-4 fw-bold">@string.Format("{0:N0}", Model.Price) đ</span>
+                    <span class="text-decoration-line-through text-muted ms-2">@string.Format("{0:N0}", Model.OldPrice) đ</span>
+                    <span class="badge bg-danger ms-2">-@((int)(100 - (Model.Price / Model.OldPrice * 100)))%</span>
+                }
+                else
+                {
+                    <span class="fs-4 fw-bold">@string.Format("{0:N0}", Model.Price) đ</span>
+                }
+            </div>
+
+            <!-- Description -->
+            <p class="mb-4">@Model.Description</p>
+
+            <!-- Product Meta -->
+            <div class="mb-4">
+                <h5 class="fw-bold">Thông tin sản phẩm</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Danh mục:</strong> @ViewBag.CategoryName</li>
+                    <li><strong>Thương hiệu:</strong> @ViewBag.BrandName</li>
+                    <li><strong>Ngày thêm:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy")</li>
+                </ul>
+            </div>
+
+            <!-- Add to Cart -->
+            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                <input type="hidden" name="productId" value="@Model.Id">
+
+                <div class="row g-3 align-items-center mb-4">
+                    <div class="col-auto">
+                        <label class="fw-bold">Số lượng:</label>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group" style="width: 120px;">
+                            <button class="btn btn-outline-secondary" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-</button>
+                            <input type="number" class="form-control text-center" name="quantity" value="1" min="1">
+                            <button class="btn btn-outline-secondary" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-danger flex-grow-1 py-3">
+                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Tabs -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button">Mô tả chi tiết</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button">Đánh giá</button>
+                </li>
+            </ul>
+            <div class="tab-content p-3 border border-top-0 rounded-bottom">
+                <div class="tab-pane fade show active" id="details">
+                    <!-- Thêm nội dung mô tả chi tiết tại đây -->
+                    <p>Thông tin chi tiết sản phẩm sẽ được cập nhật...</p>
+                </div>
+                <div class="tab-pane fade" id="reviews">
+                    <div class="text-center py-4">
+                        <p>Chưa có đánh giá nào</p>
+                        <button class="btn btn-outline-primary">Viết đánh giá</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Quantity input handling
+        document.querySelectorAll('input[type=number]').forEach(input => {
+            input.addEventListener('change', function () {
+                if (this.value < 1) this.value = 1;
+            });
+        });
+    </script>
+}

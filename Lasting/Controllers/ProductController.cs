@@ -44,5 +44,27 @@ namespace Lasting.Controllers
 
             return View(products);
         }
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.CategoryName = product.Category?.Name;
+            ViewBag.BrandName = product.Brand?.Name;
+
+            return View(product);
+        }
     }
 }
