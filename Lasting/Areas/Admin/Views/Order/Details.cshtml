@@ -1,0 +1,110 @@
+﻿@model Lasting.Models.Order
+@using Lasting.Models
+
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.Id}";
+    string GetStatusBadgeClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "bg-warning text-dark",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Shipped => "bg-info text-dark",
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="container my-5">
+    <h2 class="mb-4">📦 Chi tiết đơn hàng #@Model.Id</h2>
+
+    <div class="row g-4 mb-4">
+        <!-- Thông tin đơn hàng -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">🧾 Thông tin đơn hàng</h5>
+                    <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Trạng thái hiện tại:</strong> 
+                        <span class="badge @GetStatusBadgeClass(Model.Status)">
+                            @Model.Status
+                        </span>
+                    </p>
+
+
+                    @if (Model.Status == OrderStatus.Cancelled && !string.IsNullOrWhiteSpace(Model.CancelReason))
+                    {
+                        <div class="alert alert-warning mt-3">
+                            <strong>Lý do hủy:</strong> @Model.CancelReason
+                        </div>
+                    }
+
+                    <form asp-action="UpdateStatus" method="post" class="mt-4">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Cập nhật trạng thái:</strong></label>
+                            <select name="newStatus" class="form-select">
+                            @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                            {
+                                <option value="@status" selected="@(Model.Status == status ? "selected" : null)">
+                                    @status
+                                </option>
+                            }
+
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Địa chỉ giao hàng -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">🚚 Địa chỉ giao hàng</h5>
+                    <ul class="list-unstyled lh-lg mb-0">
+                        <li><strong>@Model.ShippingAddress.FullName</strong></li>
+                        <li>@Model.ShippingAddress.AddressLine1 @Model.ShippingAddress.AddressLine2</li>
+                        <li>@Model.ShippingAddress.City</li>
+                        <li>📞 @Model.ShippingAddress.PhoneNumber</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="mb-3">🛒 Sản phẩm</h5>
+    <table class="table table-bordered shadow-sm">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>@item.Product?.Name</td>
+                    <td>@item.Price.ToString("N0") đ</td>
+                    <td>@item.Quantity</td>
+                    <td>@((item.Price * item.Quantity).ToString("N0")) đ</td>
+
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                <td><strong>@Model.TotalAmount.ToString("N0") đ</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">← Quay lại danh sách</a>
+    </div>
+</div>

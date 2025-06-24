@@ -1,5 +1,6 @@
 ﻿// OrdersController.cs
 using Lasting.Data;
+using Lasting.Models;
 using Lasting.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,12 @@ namespace Lasting.Controllers
                 .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
             if (order == null) return NotFound();
 
+            if (order.Status != OrderStatus.Delivered)
+            {
+                TempData["Error"] = "Chỉ có thể xuất hóa đơn khi đơn hàng đã giao.";
+                return RedirectToAction("Details", new { id });
+            }
+
             var html = $@"<h2>Hóa đơn #{order.Id}</h2>
                 <p>Ngày: {order.OrderDate:dd/MM/yyyy}</p>
                 <p>Khách hàng: {order.ShippingAddress?.FullName}</p>
@@ -87,5 +94,28 @@ namespace Lasting.Controllers
             await _context.SaveChangesAsync();
             return true;
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id, string CancelReason)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+            if (order == null ||
+                (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Processing))
+            {
+                TempData["Error"] = "Đơn hàng không thể hủy.";
+                return RedirectToAction("Details", new { id });
+            }
+
+            order.Status = OrderStatus.Cancelled;
+            order.CancelReason = CancelReason;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Đơn hàng đã được hủy thành công.";
+            return RedirectToAction("MyOrders");
+        }
+
     }
 }

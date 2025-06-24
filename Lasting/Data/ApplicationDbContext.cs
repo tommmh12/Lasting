@@ -18,6 +18,10 @@ namespace Lasting.Data
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<ProductReview> Reviews { get; set; }
+        public DbSet<ReviewImage> ReviewImages { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<ReviewReply> ReviewReplies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +36,26 @@ namespace Lasting.Data
                     sa.Property(p => p.City).HasColumnName("ShippingCity");
                     sa.Property(p => p.PhoneNumber).HasColumnName("ShippingPhone");
                 });
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<string>();
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Product>()
+                .Property(p => p.OldPrice)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(r => r.Product)
+                .WithMany(p => p.Reviews)
+                .HasForeignKey(r => r.ProductId);
+
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId);
+
         }
 
     }

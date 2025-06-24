@@ -4,6 +4,7 @@ using Lasting.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lasting.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250624044646_AddProductReviewsAndImages")]
+    partial class AddProductReviewsAndImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -312,10 +315,7 @@ namespace Lasting.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AdminReply")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Content")
+                    b.Property<string>("Comment")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -329,9 +329,6 @@ namespace Lasting.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("RepliedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -342,7 +339,7 @@ namespace Lasting.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("ProductReviews");
                 });
 
             modelBuilder.Entity("Lasting.Models.ReviewImage", b =>
@@ -365,36 +362,6 @@ namespace Lasting.Migrations
                     b.HasIndex("ReviewId");
 
                     b.ToTable("ReviewImages");
-                });
-
-            modelBuilder.Entity("Lasting.Models.ReviewReply", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AdminId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ReviewId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("ReviewId");
-
-                    b.ToTable("ReviewReplies");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -681,23 +648,6 @@ namespace Lasting.Migrations
                     b.Navigation("Review");
                 });
 
-            modelBuilder.Entity("Lasting.Models.ReviewReply", b =>
-                {
-                    b.HasOne("Lasting.Models.ApplicationUser", "Admin")
-                        .WithMany()
-                        .HasForeignKey("AdminId");
-
-                    b.HasOne("Lasting.Models.ProductReview", "Review")
-                        .WithMany("Replies")
-                        .HasForeignKey("ReviewId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Admin");
-
-                    b.Navigation("Review");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -774,8 +724,6 @@ namespace Lasting.Migrations
             modelBuilder.Entity("Lasting.Models.ProductReview", b =>
                 {
                     b.Navigation("Images");
-
-                    b.Navigation("Replies");
                 });
 #pragma warning restore 612, 618
         }

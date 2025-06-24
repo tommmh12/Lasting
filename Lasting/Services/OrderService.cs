@@ -24,7 +24,7 @@ namespace Lasting.Services
             {
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
-                Status = "Pending",
+                Status = OrderStatus.Pending,
                 ShippingAddress = shippingAddress,
                 TotalAmount = await _cartService.GetCartTotalAsync(userId),
                 OrderItems = cartItems.Select(item => new OrderItem

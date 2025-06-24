@@ -15,7 +15,8 @@ namespace Lasting.Models
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        public string Status { get; set; } = "Pending";
+        [Column(TypeName = "nvarchar(20)")]
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalAmount { get; set; }
@@ -23,5 +24,9 @@ namespace Lasting.Models
         public ShippingAddress ShippingAddress { get; set; }
 
         public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
+        [MaxLength(300)]
+        public string? CancelReason { get; set; }
+
     }
 }
