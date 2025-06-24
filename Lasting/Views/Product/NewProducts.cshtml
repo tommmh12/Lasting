@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Lasting.Models.Product>
+
+@{
+    ViewData["Title"] = "Sản phẩm mới về";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-primary fw-bold">SẢN PHẨM MỚI VỀ</h2>
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            var product1 = Model.FirstOrDefault();
+            if (product1 != null)
+            {
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="@(string.IsNullOrEmpty(product1.ImageUrl) ? "/images/default-product.jpg" : product1.ImageUrl)" class="card-img-top" alt="@product1.Name" style="object-fit: cover; height: 300px;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@product1.Name</h5>
+                            <p class="card-text text-muted">@(product1.OldPrice.HasValue ? $"Giá cũ: {product1.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
+                            <p class="card-text fw-bold text-danger">@product1.Price.ToString("N0") VNĐ</p>
+                            <a href="@Url.Action("Details", new { id = product1.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            var product2 = Model.Skip(1).FirstOrDefault();
+            if (product2 != null)
+            {
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="@(string.IsNullOrEmpty(product2.ImageUrl) ? "/images/default-product.jpg" : product2.ImageUrl)" class="card-img-top" alt="@product2.Name" style="object-fit: cover; height: 300px;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@product2.Name</h5>
+                            <p class="card-text text-muted">@(product2.OldPrice.HasValue ? $"Giá cũ: {product2.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
+                            <p class="card-text fw-bold text-danger">@product2.Price.ToString("N0") VNĐ</p>
+                            <a href="@Url.Action("Details", new { id = product2.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            var product3 = Model.Skip(2).FirstOrDefault();
+            if (product3 != null)
+            {
+                <div class="col-md-6 offset-md-3 mt-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="@(string.IsNullOrEmpty(product3.ImageUrl) ? "/images/default-product.jpg" : product3.ImageUrl)" class="card-img-top" alt="@product3.Name" style="object-fit: cover; height: 300px;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@product3.Name</h5>
+                            <p class="card-text text-muted">@(product3.OldPrice.HasValue ? $"Giá cũ: {product3.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
+                            <p class="card-text fw-bold text-danger">@product3.Price.ToString("N0") VNĐ</p>
+                            <a href="@Url.Action("Details", new { id = product3.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center">
+                <p class="text-muted">Không có sản phẩm mới để hiển thị.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+}
