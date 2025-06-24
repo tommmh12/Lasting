@@ -1,98 +1,241 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Đăng ký tài khoản";
 }
 
-<h1>@ViewData["Title"]</h1>
-
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-
-            <!-- Thêm trường FullName -->
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FullName" class="form-control" autocomplete="name" aria-required="true" placeholder="Your full name" />
-                <label asp-for="Input.FullName">Full Name</label>
-                <span asp-validation-for="Input.FullName" class="text-danger"></span>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                            <div>
-                                <p>
-                                    There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                                    about setting up this ASP.NET application to support logging in via external services</a>.
-                                </p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg overflow-hidden">
+                <div class="row g-0">
+                    <!-- Phần hình ảnh bên trái -->
+                    <div class="col-md-5 d-none d-md-block bg-gradient-primary">
+                        <div class="h-100 d-flex flex-column justify-content-center p-5 text-white">
+                            <div class="text-center mb-5">
+                                <i class="bi bi-person-plus display-4"></i>
+                                <h2 class="mt-3 fw-bold">Chào mừng bạn!</h2>
+                                <p class="lead">Đăng ký để trải nghiệm dịch vụ tốt nhất</p>
                             </div>
-                }
-                else
-                {
-                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                                <div>
-                                    <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                                    </p>
+                            <div class="features-list">
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+                                    <span>Quản lý đơn hàng dễ dàng</span>
                                 </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+                                    <span>Nhận ưu đãi đặc biệt</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+                                    <span>Lịch sử mua hàng chi tiết</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phần form đăng ký -->
+                    <div class="col-md-7">
+                        <div class="card-body p-5">
+                            <h2 class="fw-bold mb-4 text-center">Tạo tài khoản mới</h2>
+                            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="needs-validation" novalidate>
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Input.FullName" class="form-control" placeholder="Họ và tên" required />
+                                            <label asp-for="Input.FullName">Họ và tên</label>
+                                            <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Input.Email" class="form-control" placeholder="Email" required />
+                                            <label asp-for="Input.Email">Email</label>
+                                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Input.Password" class="form-control" placeholder="Mật khẩu" required />
+                                            <label asp-for="Input.Password">Mật khẩu</label>
+                                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Xác nhận mật khẩu" required />
+                                            <label asp-for="Input.ConfirmPassword">Xác nhận mật khẩu</label>
+                                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <select asp-for="Input.Gender" class="form-select" required>
+                                                <option value="">-- Chọn --</option>
+                                                <option value="Nam">Nam</option>
+                                                <option value="Nữ">Nữ</option>
+                                                <option value="Khác">Khác</option>
+                                            </select>
+                                            <label asp-for="Input.Gender">Giới tính</label>
+                                            <span asp-validation-for="Input.Gender" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input asp-for="Input.DateOfBirth" class="form-control" type="date" required />
+                                            <label asp-for="Input.DateOfBirth">Ngày sinh</label>
+                                            <span asp-validation-for="Input.DateOfBirth" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Số điện thoại" required />
+                                            <label asp-for="Input.PhoneNumber">Số điện thoại</label>
+                                            <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            <input asp-for="Input.Address" class="form-control" placeholder="Địa chỉ" />
+                                            <label asp-for="Input.Address">Địa chỉ</label>
+                                            <span asp-validation-for="Input.Address" class="text-danger small"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tỉnh/Thành phố</label>
+                                        <select asp-for="Input.Province" id="province" class="form-select" required>
+                                            <option value="">Chọn tỉnh/thành</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Quận/Huyện</label>
+                                        <select asp-for="Input.District" id="district" class="form-select" required>
+                                            <option value="">Chọn quận/huyện</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Phường/Xã</label>
+                                        <select asp-for="Input.Ward" id="ward" class="form-select" required>
+                                            <option value="">Chọn phường/xã</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                    <label class="form-check-label small" for="termsCheck">
+                                        Tôi đồng ý với <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">điều khoản và điều kiện</a>
+                                    </label>
+                                </div>
+
+                                <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg w-100 mt-4 py-3">
+                                    <i class="bi bi-person-plus-fill me-2"></i> Đăng ký tài khoản
+                                </button>
                             </form>
-                }
-            }
-        </section>
+
+                            <div class="text-center mt-4">
+                                <p class="mb-0">Đã có tài khoản? <a asp-page="/Account/Login" class="fw-bold">Đăng nhập ngay</a></p>
+                            </div>
+
+                            <div class="divider my-4">hoặc</div>
+
+                            <div class="text-center">
+                                <h6 class="mb-3">Đăng ký bằng mạng xã hội</h6>
+                                @if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                                {
+                                        <div class="alert alert-warning">
+                                            Chưa cấu hình dịch vụ đăng nhập ngoài. <a href="https://go.microsoft.com/fwlink/?LinkID=532715" target="_blank">Hướng dẫn</a>.
+                                        </div>
+                                }
+                                else
+                                {
+                                        <form asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                            <div class="d-flex justify-content-center gap-3">
+                                            @foreach (var provider in Model.ExternalLogins!)
+                                            {
+                                                var btnClass = provider.DisplayName switch
+                                                {
+                                                    "Facebook" => "btn-facebook",
+                                                    "Google" => "btn-google",
+                                                    "Microsoft" => "btn-microsoft",
+                                                    _ => "btn-outline-dark"
+                                                };
+
+                                                        <button type="submit" class="btn btn-icon @btnClass rounded-circle" name="provider" value="@provider.Name" title="Đăng ký bằng @provider.DisplayName">
+                                                    @if (provider.DisplayName == "Facebook")
+                                                    {
+                                                                    <i class="bi bi-facebook"></i>
+                                                    }
+                                                    else if (provider.DisplayName == "Google")
+                                                    {
+                                                                    <i class="bi bi-google"></i>
+                                                    }
+                                                    else if (provider.DisplayName == "Microsoft")
+                                                    {
+                                                                    <i class="bi bi-microsoft"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                                    <i class="bi bi-box-arrow-in-right"></i>
+                                                    }
+                                                        </button>
+                                            }
+                                            </div>
+                                        </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-        <!-- Đảm bảo jQuery được load trước các validation scripts -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <partial name="_ValidationScriptsPartial" />
-
-        <!-- Script xử lý lỗi nếu có -->
         <script>
-            $(document).ready(function() {
-                // Kiểm tra nếu có lỗi validation
-                if ($(".validation-summary-errors").length > 0) {
-                    $("html, body").animate({
-                        scrollTop: $("#registerForm").offset().top
-                    }, 500);
-                }
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch("/js/data.json")
+                    .then(res => res.json())
+                    .then(data => {
+                        const provinceSelect = document.getElementById("province");
+                        const districtSelect = document.getElementById("district");
+                        const wardSelect = document.getElementById("ward");
 
-                // Xử lý khi submit form
-                $("#registerForm").on("submit", function() {
-                    if (!$(this).valid()) {
-                        return false;
-                    }
-                    $("#registerSubmit").prop("disabled", true);
-                    $("#registerSubmit").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Registering...');
-                });
+                        data.forEach(province => {
+                            provinceSelect.innerHTML += `<option value="${province.Name}">${province.Name}</option>`;
+                        });
+
+                        provinceSelect.addEventListener("change", () => {
+                            const selectedProvince = data.find(p => p.Name === provinceSelect.value);
+                            districtSelect.innerHTML = `<option value="">Chọn quận/huyện</option>`;
+                            wardSelect.innerHTML = `<option value="">Chọn phường/xã</option>`;
+
+                            selectedProvince?.Districts?.forEach(d => {
+                                districtSelect.innerHTML += `<option value="${d.Name}">${d.Name}</option>`;
+                            });
+                        });
+
+                        districtSelect.addEventListener("change", () => {
+                            const selectedProvince = data.find(p => p.Name === provinceSelect.value);
+                            const selectedDistrict = selectedProvince?.Districts?.find(d => d.Name === districtSelect.value);
+
+                            wardSelect.innerHTML = `<option value="">Chọn phường/xã</option>`;
+                            selectedDistrict?.Wards?.forEach(w => {
+                                wardSelect.innerHTML += `<option value="${w.Name}">${w.Name}</option>`;
+                            });
+                        });
+                    });
             });
         </script>
 }
