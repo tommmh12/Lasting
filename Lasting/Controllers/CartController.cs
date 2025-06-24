@@ -33,13 +33,32 @@ namespace Lasting.Controllers
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
             var product = await _productService.GetProductByIdAsync(productId);
-            if (product == null || !product.IsActive || product.StockQuantity < quantity)
+            if (product == null || !product.IsActive)
             {
-                SetErrorMessage("Sản phẩm hiện không khả dụng hoặc không đủ tồn kho.");
+                SetErrorMessage("Sản phẩm hiện không khả dụng.");
                 return RedirectToCartIndex();
             }
 
             var userId = GetCurrentUserId();
+            int currentQuantity = 0;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var cartItems = await _cartService.GetCartItemsAsync(userId);
+                currentQuantity = cartItems.Where(c => c.ProductId == productId).Sum(c => c.Quantity);
+            }
+            else
+            {
+                var tempCart = await _cartService.GetTempCartAsync();
+                currentQuantity = tempCart.Where(x => x.ProductId == productId).Sum(x => x.Quantity);
+            }
+
+            if (currentQuantity + quantity > product.StockQuantity)
+            {
+                SetErrorMessage($"Số lượng vượt quá tồn kho ({product.StockQuantity} sản phẩm).");
+                return RedirectToCartIndex();
+            }
+
             await _cartService.AddToCartAsync(userId, productId, quantity);
             SetSuccessMessage($"Đã thêm {product.Name} vào giỏ hàng");
             return RedirectToCartIndex();
@@ -58,21 +77,87 @@ namespace Lasting.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> UpdateTempCartItem([FromBody] UpdateTempCartRequest request)
+        {
+            var product = await _productService.GetProductByIdAsync(request.ProductId);
+            if (product == null)
+            {
+                return BadRequest("Sản phẩm không tồn tại.");
+            }
+
+            var tempCart = await _cartService.GetTempCartAsync();
+            var currentItem = tempCart.FirstOrDefault(x => x.ProductId == request.ProductId);
+            int currentQuantity = currentItem?.Quantity ?? 0;
+
+            if (request.Quantity <= 0)
+            {
+                await _cartService.RemoveTempCartItemAsync(request.ProductId);
+            }
+            else if (request.Quantity > product.StockQuantity)
+            {
+                return BadRequest($"Số lượng vượt quá tồn kho ({product.StockQuantity} sản phẩm).");
+            }
+            else
+            {
+                await _cartService.UpdateTempCartItemAsync(request.ProductId, request.Quantity);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveTempCartItem([FromBody] RemoveTempCartRequest request)
+        {
+            await _cartService.RemoveTempCartItemAsync(request.ProductId);
+            return Ok();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int id, int newQuantity, bool isTempItem = false)
         {
             var product = await _productService.GetProductByIdAsync(id);
-            if (product == null || newQuantity > product.StockQuantity)
+            if (product == null)
             {
-                SetErrorMessage("Không thể cập nhật vì vượt quá số lượng tồn kho.");
+                SetErrorMessage("Sản phẩm không tồn tại.");
                 return RedirectToCartIndex();
             }
 
+            int currentQuantity = 0;
             if (User.Identity.IsAuthenticated && !isTempItem)
-                await _cartService.UpdateQuantityAsync(GetCurrentUserId(), id, newQuantity);
+            {
+                var cartItems = await _cartService.GetCartItemsAsync(GetCurrentUserId());
+                currentQuantity = cartItems.Where(c => c.ProductId == id).Sum(c => c.Quantity);
+            }
             else
-                await _cartService.UpdateTempCartItemAsync(id, newQuantity);
+            {
+                var tempCart = await _cartService.GetTempCartAsync();
+                currentQuantity = tempCart.Where(x => x.ProductId == id).Sum(x => x.Quantity);
+            }
 
+            if (newQuantity <= 0)
+            {
+                await RemoveFromCart(id, isTempItem);
+                return RedirectToCartIndex();
+            }
+            else if (newQuantity > product.StockQuantity)
+            {
+                SetErrorMessage($"Số lượng vượt quá tồn kho ({product.StockQuantity} sản phẩm).");
+                return RedirectToCartIndex();
+            }
+
+            await ProcessUpdateQuantity(id, newQuantity, isTempItem);
             return RedirectToCartIndex();
+        }
+
+        public class UpdateTempCartRequest
+        {
+            public int ProductId { get; set; }
+            public int Quantity { get; set; }
+        }
+
+        public class RemoveTempCartRequest
+        {
+            public int ProductId { get; set; }
         }
 
         [HttpGet]
@@ -97,7 +182,6 @@ namespace Lasting.Controllers
         }
 
         #region Private Methods
-
         private async Task<(object Items, string ViewName)> GetCartModel()
         {
             if (User.Identity.IsAuthenticated)
@@ -158,12 +242,10 @@ namespace Lasting.Controllers
                 : await _cartService.GetTempCartTotalAsync();
         }
 
-
         private string GetCurrentUserId()
         {
             return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
-
 
         private IActionResult RedirectToCartIndex()
         {
@@ -174,6 +256,7 @@ namespace Lasting.Controllers
         {
             TempData["SuccessMessage"] = message;
         }
+
         private void SetErrorMessage(string message) => TempData["ErrorMessage"] = message;
         #endregion
     }
