@@ -6,56 +6,256 @@
 
     string GetStatusBadgeClass(OrderStatus status) => status switch
     {
-        OrderStatus.Pending => "bg-warning text-dark",     // Chờ xác nhận
-        OrderStatus.Processing => "bg-primary",             // Đang xử lý
-        OrderStatus.Shipped => "bg-info text-dark",         // Đang giao
-        OrderStatus.Delivered => "bg-success",              // Đã giao
-        OrderStatus.Cancelled => "bg-danger",               // Đã hủy
+        OrderStatus.Pending => "bg-warning text-dark",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Shipped => "bg-info text-dark",
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Cancelled => "bg-danger",
         _ => "bg-secondary"
+    };
+
+    string GetStatusIcon(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "bi-hourglass",
+        OrderStatus.Processing => "bi-gear",
+        OrderStatus.Shipped => "bi-truck",
+        OrderStatus.Delivered => "bi-check-circle",
+        OrderStatus.Cancelled => "bi-x-circle",
+        _ => "bi-question-circle"
     };
 }
 
-<div class="container my-5">
-    <h2 class="mb-4 text-center">🛍 Lịch sử mua hàng của bạn</h2>
+<div class="orders-container">
+    <div class="orders-header">
+        <h1 class="orders-title">
+            <i class="bi bi-bag-check"></i>
+            Lịch sử đơn hàng
+        </h1>
+        <p class="orders-subtitle">Danh sách các đơn hàng bạn đã đặt</p>
+    </div>
 
     @if (!Model.Any())
     {
-            <div class="alert alert-info text-center">
-                Bạn chưa có đơn hàng nào.
-            </div>
+        <div class="empty-orders">
+            <i class="bi bi-bag-x"></i>
+            <h3>Bạn chưa có đơn hàng nào</h3>
+            <p>Hãy bắt đầu mua sắm và quay lại sau</p>
+            <a href="/Product" class="btn btn-primary">
+                <i class="bi bi-bag me-2"></i>Mua sắm ngay
+            </a>
+        </div>
     }
     else
     {
-            <table class="table table-hover shadow-sm border">
-                <thead class="table-light">
-                    <tr>
-                        <th>Mã đơn</th>
-                        <th>Ngày đặt</th>
-                        <th>Trạng thái</th>
-                        <th>Tổng tiền</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var order in Model)
-                {
-                            <tr>
-                                <td>#@order.Id</td>
-                                <td>@order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>
-                                    <span class="badge @GetStatusBadgeClass(order.Status)">
-                                @order.Status
-                                    </span>
-                                </td>
-                                <td>@order.TotalAmount.ToString("N0") đ</td>
-                                <td>
-                                    <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary btn-sm">
-                                        Xem chi tiết
-                                    </a>
-                                </td>
-                            </tr>
-                }
-                </tbody>
-            </table>
+        <div class="orders-list">
+            @foreach (var order in Model.OrderByDescending(o => o.OrderDate))
+            {
+                <div class="order-card">
+                    <div class="order-card-header">
+                        <div class="order-id">
+                            <i class="bi @GetStatusIcon(order.Status)"></i>
+                            Đơn hàng #@order.Id
+                        </div>
+                        <div class="order-date">
+                            <i class="bi bi-calendar"></i>
+                            @order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+
+                    <div class="order-card-body">
+                        <div class="order-status">
+                            <span class="status-badge @GetStatusBadgeClass(order.Status)">@order.Status</span>
+                        </div>
+
+                        <div class="order-summary">
+                            <div class="order-items-count">
+                                <i class="bi bi-box-seam"></i>
+                                @order.OrderItems.Count sản phẩm
+                            </div>
+                            <div class="order-total">
+                                <span>Tổng cộng:</span>
+                                <span class="total-amount">@order.TotalAmount.ToString("N0") đ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-card-footer">
+                        <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-details">
+                            <i class="bi bi-eye"></i> Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
     }
 </div>
+
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .orders-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .orders-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .orders-subtitle {
+        color: #718096;
+        margin-top: 0.5rem;
+    }
+
+    .empty-orders {
+        text-align: center;
+        padding: 3rem 0;
+    }
+
+    .empty-orders i {
+        font-size: 4rem;
+        color: #cbd5e0;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-orders h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+    }
+
+    .empty-orders p {
+        color: #718096;
+        margin-bottom: 1.5rem;
+    }
+
+    .orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-card-header {
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-date {
+        color: #718096;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .order-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .order-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .order-items-count {
+        color: #718096;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-total {
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .total-amount {
+        color: #f04c2f;
+        font-size: 1.1rem;
+    }
+
+    .order-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-details {
+        background: rgba(240, 76, 47, 0.1);
+        color: #f04c2f;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-details:hover {
+        background: rgba(240, 76, 47, 0.2);
+    }
+    
+</style>

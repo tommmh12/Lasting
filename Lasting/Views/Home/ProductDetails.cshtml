@@ -1,24 +1,120 @@
 ﻿@if (ViewBag.RelatedProducts != null && ViewBag.RelatedProducts.Count > 0)
 {
-        <div class="container mt-5">
-            <h3>Sản phẩm liên quan</h3>
-            <div class="row">
-            @foreach (var product in ViewBag.RelatedProducts)
-            {
-                        <div class="col-md-3 mb-4">
-                            <div class="card h-100">
-                                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 150px; object-fit: cover;">
-                                <div class="card-body">
-                                    <h5 class="card-title">@product.Name</h5>
-                                    <p class="card-text">
-                                        <span class="text-danger fw-bold">@product.Price.ToString("N0") đ</span>
-                                    </p>
-                                    <a href="@Url.Action("ProductDetails", "Home", new { id = product.Id })" 
-                                       class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
-                                </div>
-                            </div>
-                        </div>
-            }
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h3 class="fw-bold">SẢN PHẨM LIÊN QUAN</h3>
+            <p class="text-muted">Các sản phẩm cùng danh mục bạn có thể thích</p>
+            <div class="d-flex justify-content-center">
+                <div class="divider mx-auto"></div>
             </div>
         </div>
+
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var product in ViewBag.RelatedProducts)
+            {
+                <div class="col">
+                    <div class="product-card-sm">
+                        <div class="product-image-sm">
+                            <img src="@product.ImageUrl" alt="@product.Name">
+                        </div>
+                        <div class="product-info-sm">
+                            <h4 class="product-title-sm">@product.Name</h4>
+                            <div class="product-price-sm">
+                                <span class="current-price-sm">@product.Price.ToString("N0") đ</span>
+                            </div>
+                            <a href="@Url.Action("ProductDetails", "Home", new { id = product.Id })"
+                               class="btn btn-view-sm">
+                                Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <style>
+        .divider {
+            width: 60px;
+            height: 3px;
+            background: #f04c2f;
+            border-radius: 2px;
+        }
+
+        .product-card-sm {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+            .product-card-sm:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+
+        .product-image-sm {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            padding: 15px;
+        }
+
+            .product-image-sm img {
+                max-height: 100%;
+                max-width: 100%;
+                transition: transform 0.5s ease;
+            }
+
+        .product-card-sm:hover .product-image-sm img {
+            transform: scale(1.05);
+        }
+
+        .product-info-sm {
+            padding: 15px;
+        }
+
+        .product-title-sm {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2d3748;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 45px;
+        }
+
+        .product-price-sm {
+            margin-bottom: 10px;
+        }
+
+        .current-price-sm {
+            color: #f04c2f;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .btn-view-sm {
+            width: 100%;
+            background: rgba(240, 76, 47, 0.1);
+            color: #f04c2f;
+            border: none;
+            padding: 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-view-sm:hover {
+                background: #f04c2f;
+                color: white;
+            }
+    </style>
 }

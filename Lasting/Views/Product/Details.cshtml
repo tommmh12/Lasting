@@ -4,7 +4,6 @@
 
 @{
     var reviewCount = Model.Reviews?.Count ?? 0;
-
     ViewData["Title"] = Model.Name;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -14,7 +13,7 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="/products">Sản phẩm</a></li>
+            <li class="breadcrumb-item"><a href="/Product">Sản phẩm</a></li>
             <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
         </ol>
     </nav>
@@ -23,274 +22,270 @@
     <div class="row g-4 mb-5">
         <!-- Product Images -->
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm mb-3">
-                <img src="@Model.ImageUrl" class="card-img-top p-3" alt="@Model.Name" id="mainProductImage" style="height: 400px; object-fit: contain;">
+            <div class="main-image-container mb-4">
+                <img src="@Model.ImageUrl" class="main-product-image" alt="@Model.Name" id="mainProductImage">
             </div>
 
             @if (Model.Gallery != null && Model.Gallery.Any())
             {
-                    <div class="d-flex flex-wrap gap-2">
-                        <div class="thumbnail" onclick="changeMainImage('@Model.ImageUrl')">
-                            <img src="@Model.ImageUrl" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;">
-                        </div>
+                <div class="gallery-thumbs">
+                    <div class="gallery-item active" onclick="changeMainImage('@Model.ImageUrl')">
+                        <img src="@Model.ImageUrl" alt="Thumbnail">
+                    </div>
                     @foreach (var img in Model.Gallery)
                     {
-                                <div class="thumbnail" onclick="changeMainImage('@img.ImageUrl')">
-                                    <img src="@img.ImageUrl" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;">
-                                </div>
+                        <div class="gallery-item" onclick="changeMainImage('@img.ImageUrl')">
+                            <img src="@img.ImageUrl" alt="Gallery image">
+                        </div>
                     }
-                    </div>
+                </div>
             }
         </div>
 
         <!-- Product Details -->
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h1 class="h2 fw-bold mb-3">@Model.Name</h1>
+            <div class="product-details-card">
+                <h1 class="product-name">@Model.Name</h1>
 
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="text-warning me-2">
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                    <i class="bi @(i <= ViewBag.AverageRating ? "bi-star-fill" : "bi-star")"></i>
-                            }
+                <div class="d-flex align-items-center mb-4">
+                    <div class="rating-stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="bi @(i <= ViewBag.AverageRating ? "bi-star-fill" : "bi-star")"></i>
+                        }
+                    </div>
+                    <span class="review-count">(@reviewCount đánh giá)</span>
+                </div>
+
+                <div class="price-section mb-4">
+                    @if (Model.OldPrice.HasValue && Model.OldPrice > Model.Price)
+                    {
+                        <div class="d-flex align-items-center">
+                            <span class="old-price">@Model.OldPrice.Value.ToString("N0") đ</span>
+                            <span class="current-price">@Model.Price.ToString("N0") đ</span>
+                            <span class="discount-badge">-@((int)(100 - (Model.Price * 100 / Model.OldPrice.Value)))%</span>
                         </div>
-                        <span class="text-muted">(@reviewCount đánh giá)</span>
+                    }
+                    else
+                    {
+                        <span class="current-price">@Model.Price.ToString("N0") đ</span>
+                    }
+                </div>
 
+                <div class="product-meta mb-4">
+                    <div class="meta-item">
+                        <i class="bi bi-box-seam me-2"></i>
+                        <strong>Tình trạng:</strong>
+                        <span class="@(Model.StockQuantity > 0 ? "text-success" : "text-danger")">
+                            @(Model.StockQuantity > 0 ? "Còn hàng" : "Hết hàng")
+                        </span>
                     </div>
-
-                    <div class="mb-4">
-                        @if (Model.OldPrice.HasValue && Model.OldPrice > Model.Price)
-                        {
-                                <span class="text-decoration-line-through text-muted me-2">@Model.OldPrice.Value.ToString("N0") đ</span>
-                                <span class="text-danger fw-bold fs-4">@Model.Price.ToString("N0") đ</span>
-                                <span class="badge bg-danger ms-2">-@((int)(100 - (Model.Price * 100 / Model.OldPrice.Value)))%</span>
-                        }
-                        else
-                        {
-                                <span class="text-primary fw-bold fs-4">@Model.Price.ToString("N0") đ</span>
-                        }
+                    <div class="meta-item">
+                        <i class="bi bi-tags me-2"></i>
+                        <strong>Danh mục:</strong> @ViewBag.CategoryName
                     </div>
-
-                    <div class="mb-4">
-                        <p class="mb-2"><i class="bi bi-box-seam me-2"></i> <strong>Tình trạng:</strong> 
-                            <span class="@(Model.StockQuantity > 0 ? "text-success" : "text-danger")">
-                                @(Model.StockQuantity > 0 ? "Còn hàng" : "Hết hàng")
-                            </span>
-                        </p>
-                        <p class="mb-2"><i class="bi bi-tags me-2"></i> <strong>Danh mục:</strong> @ViewBag.CategoryName</p>
-                        <p class="mb-2"><i class="bi bi-building me-2"></i> <strong>Thương hiệu:</strong> @ViewBag.BrandName</p>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5 class="fw-bold">Mô tả sản phẩm</h5>
-                        <p>@Model.Description</p>
-                    </div>
-
-                    <div class="border-top pt-3">
-                        <form asp-controller="Cart" asp-action="AddToCart" method="post" asp-route-productId="@Model.Id" class="row g-3 align-items-center">
-                            <div class="col-auto">
-                                <label class="form-label"><strong>Số lượng:</strong></label>
-                            </div>
-                            <div class="col-auto">
-                                <div class="input-group" style="width: 120px;">
-                                    <button type="button" class="btn btn-outline-secondary" onclick="decreaseQuantity()">-</button>
-                                    <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" 
-                                           class="form-control text-center" id="quantityInput">
-                                    <button type="button" class="btn btn-outline-secondary" onclick="increaseQuantity()">+</button>
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-primary btn-lg" @(Model.StockQuantity <= 0 ? "disabled" : "")>
-                                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
-                                </button>
-                            </div>
-                        </form>
+                    <div class="meta-item">
+                        <i class="bi bi-building me-2"></i>
+                        <strong>Thương hiệu:</strong> @ViewBag.BrandName
                     </div>
                 </div>
+
+                <div class="product-description mb-4">
+                    <h5>Mô tả sản phẩm</h5>
+                    <p>@Model.Description</p>
+                </div>
+
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" asp-route-productId="@Model.Id" class="add-to-cart-form">
+                    <div class="d-flex align-items-center">
+                        <label class="me-3"><strong>Số lượng:</strong></label>
+                        <div class="quantity-control">
+                            <button type="button" class="btn-quantity" onclick="decreaseQuantity()">-</button>
+                            <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity"
+                                   class="quantity-input" id="quantityInput">
+                            <button type="button" class="btn-quantity" onclick="increaseQuantity()">+</button>
+                        </div>
+                        <button type="submit" class="btn-add-to-cart" @(Model.StockQuantity <= 0 ? "disabled" : "")>
+                            <i class="bi bi-cart-plus me-2"></i> Thêm vào giỏ
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <!-- Product Tabs -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <ul class="nav nav-tabs" id="productTabs" role="tablist">
-                <li class="nav-item" role="presentation">
+    <div class="product-tabs mb-5">
+        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+            <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
                     Đánh giá (@reviewCount)
                 </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">Thông tin chi tiết</button>
-                </li>
-            </ul>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                    Thông tin chi tiết
+                </button>
+            </li>
+        </ul>
 
-            <div class="tab-content p-3 border border-top-0 rounded-bottom shadow-sm bg-white">
-                <!-- Reviews Tab -->
-                <div class="tab-pane fade show active" id="reviews" role="tabpanel">
-                    <div class="row">
-                        <div class="col-md-5 mb-4">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body text-center">
-                                    <h3 class="display-4 fw-bold text-primary mb-0">@ViewBag.AverageRating.ToString("0.0")</h3>
-                                    <div class="text-warning mb-2">
-                                        @for (int i = 1; i <= 5; i++)
-                                        {
-                                                <i class="bi @(i <= ViewBag.AverageRating ? "bi-star-fill" : "bi-star")"></i>
-                                        }
-                                    </div>
-                                    <p class="text-muted">Dựa trên @Model.Reviews?.Count đánh giá</p>
+        <div class="tab-content">
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade show active" id="reviews" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-5 mb-4">
+                        <div class="rating-summary-card">
+                            <div class="average-rating">@ViewBag.AverageRating.ToString("0.0")</div>
+                            <div class="rating-stars large">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi @(i <= ViewBag.AverageRating ? "bi-star-fill" : "bi-star")"></i>
+                                }
+                            </div>
+                            <div class="review-count">Dựa trên @Model.Reviews?.Count đánh giá</div>
 
-                                    <div class="mt-4">
-                                        @if (SignInManager.IsSignedIn(User))
-                                        {
-                                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">
-                                                    <i class="bi bi-pencil-square"></i> Viết đánh giá
-                                                </button>
-                                        }
-                                        else
-                                        {
-                                                <div class="alert alert-info mb-0">
-                                                    <a asp-area="Identity" asp-page="/Account/Login" class="alert-link">Đăng nhập</a> để viết đánh giá
-                                                </div>
-                                        }
+                            <div class="mt-4">
+                                @if (SignInManager.IsSignedIn(User))
+                                {
+                                    <button class="btn btn-review" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                        <i class="bi bi-pencil-square me-2"></i> Viết đánh giá
+                                    </button>
+                                }
+                                else
+                                {
+                                    <div class="login-prompt">
+                                        <a asp-area="Identity" asp-page="/Account/Login" class="login-link">Đăng nhập</a> để viết đánh giá
                                     </div>
-                                </div>
+                                }
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-7">
-                            @if (Model.Reviews != null && Model.Reviews.Any())
+                    <div class="col-lg-7">
+                        @if (Model.Reviews != null && Model.Reviews.Any())
+                        {
+                            foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
                             {
-                                foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
-                                {
-                                            <div class="card mb-3 border-0 shadow-sm">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between mb-2">
-                                                        <div>
-                                                            <h6 class="mb-0 fw-bold">@review.User?.UserName</h6>
-                                                            <small class="text-muted">@review.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
-                                                        </div>
-                                                        <div class="text-warning">
-                                                    @for (int i = 1; i <= 5; i++)
-                                                    {
-                                                                    <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")"></i>
-                                                    }
-                                                        </div>
-                                                    </div>
-
-                                                    <p class="mb-2">@review.Content</p>
-
-                                            @if (review.Images?.Any() == true)
+                                <div class="review-card">
+                                    <div class="review-header">
+                                        <div>
+                                            <h6 class="review-author">@review.User?.UserName</h6>
+                                            <div class="review-date">@review.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                                        </div>
+                                        <div class="review-rating">
+                                            @for (int i = 1; i <= 5; i++)
                                             {
-                                                            <div class="d-flex flex-wrap gap-2 mb-2">
-                                                    @foreach (var img in review.Images)
-                                                    {
-                                                                        <img src="@img.ImageUrl" class="img-thumbnail" style="width: 80px; height: 80px; cursor: pointer;" 
-                                                                             onclick="openImageModal('@img.ImageUrl')">
-                                                    }
-                                                            </div>
+                                                <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")"></i>
                                             }
-
-                                            @if (review.Replies?.Any() == true)
-                                            {
-                                                            <div class="bg-light p-3 rounded mt-2">
-                                                    @foreach (var reply in review.Replies.OrderBy(r => r.CreatedAt))
-                                                    {
-                                                                        <div class="mb-2">
-                                                                            <div class="d-flex justify-content-between">
-                                                                                <strong>Quản trị viên</strong>
-                                                                                <small class="text-muted">@reply.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
-                                                                            </div>
-                                                                            <p class="mb-0">@reply.Content</p>
-                                                                        </div>
-                                                    }
-                                                            </div>
-                                            }
-
-                                            @if (User.IsInRole("Admin"))
-                                            {
-                                                            <div class="mt-3">
-                                                                <form asp-action="ReplyReview" method="post" class="mb-2">
-                                                                    <input type="hidden" name="reviewId" value="@review.Id" />
-                                                                    <div class="input-group">
-                                                                        <input type="text" name="replyContent" class="form-control" placeholder="Viết phản hồi..." required>
-                                                                        <button type="submit" class="btn btn-outline-primary">Gửi</button>
-                                                                    </div>
-                                                                </form>
-
-                                                                <form asp-action="DeleteReview" method="post" class="d-inline">
-                                                                    <input type="hidden" name="reviewId" value="@review.Id" />
-                                                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                                            onclick="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
-                                                                        <i class="bi bi-trash"></i> Xóa
-                                                                    </button>
-                                                                </form>
-                                                            </div>
-                                            }
-                                                </div>
-                                            </div>
-                                }
-                            }
-                            else
-                            {
-                                    <div class="text-center py-4">
-                                        <i class="bi bi-chat-square-text fs-1 text-muted"></i>
-                                        <p class="text-muted mt-2">Chưa có đánh giá nào</p>
+                                        </div>
                                     </div>
+
+                                    <p class="review-content">@review.Content</p>
+
+                                    @if (review.Images?.Any() == true)
+                                    {
+                                        <div class="review-images">
+                                            @foreach (var img in review.Images)
+                                            {
+                                                <img src="@img.ImageUrl" onclick="openImageModal('@img.ImageUrl')">
+                                            }
+                                        </div>
+                                    }
+
+                                    @if (review.Replies?.Any() == true)
+                                    {
+                                        <div class="admin-replies">
+                                            @foreach (var reply in review.Replies.OrderBy(r => r.CreatedAt))
+                                            {
+                                                <div class="admin-reply">
+                                                    <div class="reply-header">
+                                                        <strong>Quản trị viên</strong>
+                                                        <span>@reply.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                                                    </div>
+                                                    <p>@reply.Content</p>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <div class="admin-actions">
+                                            <form asp-action="ReplyReview" method="post" class="reply-form">
+                                                <input type="hidden" name="reviewId" value="@review.Id" />
+                                                <div class="input-group">
+                                                    <input type="text" name="replyContent" class="form-control" placeholder="Viết phản hồi..." required>
+                                                    <button type="submit" class="btn btn-reply">Gửi</button>
+                                                </div>
+                                            </form>
+
+                                            <form asp-action="DeleteReview" method="post" class="d-inline">
+                                                <input type="hidden" name="reviewId" value="@review.Id" />
+                                                <button type="submit" class="btn btn-delete"
+                                                        onclick="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
+                                                    <i class="bi bi-trash"></i> Xóa
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                </div>
                             }
-                        </div>
+                        }
+                        else
+                        {
+                            <div class="empty-reviews">
+                                <i class="bi bi-chat-square-text"></i>
+                                <p>Chưa có đánh giá nào</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description Tab -->
+            <div class="tab-pane fade" id="description" role="tabpanel">
+                <h4>Thông tin chi tiết</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="product-specs">
+                            <tr>
+                                <th>Tên sản phẩm</th>
+                                <td>@Model.Name</td>
+                            </tr>
+                            <tr>
+                                <th>Danh mục</th>
+                                <td>@ViewBag.CategoryName</td>
+                            </tr>
+                            <tr>
+                                <th>Thương hiệu</th>
+                                <td>@ViewBag.BrandName</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="product-specs">
+                            <tr>
+                                <th>Giá</th>
+                                <td>@Model.Price.ToString("N0") đ</td>
+                            </tr>
+                            <tr>
+                                <th>Tình trạng</th>
+                                <td>
+                                    <span class="stock-badge @(Model.StockQuantity > 0 ? "in-stock" : "out-of-stock")">
+                                        @(Model.StockQuantity > 0 ? "Còn hàng" : "Hết hàng")
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Số lượng tồn</th>
+                                <td>@Model.StockQuantity</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 
-                <!-- Description Tab -->
-                <div class="tab-pane fade" id="description" role="tabpanel">
-                    <h4 class="fw-bold mb-3">Thông tin chi tiết</h4>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <table class="table table-striped">
-                                <tr>
-                                    <th width="40%">Tên sản phẩm</th>
-                                    <td>@Model.Name</td>
-                                </tr>
-                                <tr>
-                                    <th>Danh mục</th>
-                                    <td>@ViewBag.CategoryName</td>
-                                </tr>
-                                <tr>
-                                    <th>Thương hiệu</th>
-                                    <td>@ViewBag.BrandName</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <table class="table table-striped">
-                                <tr>
-                                    <th width="40%">Giá</th>
-                                    <td>@Model.Price.ToString("N0") đ</td>
-                                </tr>
-                                <tr>
-                                    <th>Tình trạng</th>
-                                    <td>
-                                        <span class="badge @(Model.StockQuantity > 0 ? "bg-success" : "bg-danger")">
-                                            @(Model.StockQuantity > 0 ? "Còn hàng" : "Hết hàng")
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Số lượng tồn</th>
-                                    <td>@Model.StockQuantity</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h5 class="fw-bold">Mô tả sản phẩm</h5>
-                        <p>@Model.Description</p>
-                    </div>
+                <div class="product-full-description mt-4">
+                    <h5>Mô tả sản phẩm</h5>
+                    <p>@Model.Description</p>
                 </div>
             </div>
         </div>
@@ -302,38 +297,38 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="reviewModalLabel">Viết đánh giá</h5>
+                <h5 class="modal-title">Viết đánh giá</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form asp-action="AddReview" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
                     <input type="hidden" name="productId" value="@Model.Id" />
 
-                    <div class="mb-3">
-                        <label class="form-label">Đánh giá của bạn</label>
-                        <div class="rating-stars">
+                    <div class="mb-4">
+                        <label>Đánh giá của bạn</label>
+                        <div class="rating-input">
                             @for (int i = 1; i <= 5; i++)
                             {
-                                    <i class="bi bi-star-fill star" data-value="@i" style="cursor: pointer; font-size: 1.5rem;"></i>
+                                <i class="bi bi-star-fill star" data-value="@i"></i>
                             }
                             <input type="hidden" name="Rating" id="ratingValue" value="5" required>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Nội dung đánh giá</label>
+                    <div class="mb-4">
+                        <label>Nội dung đánh giá</label>
                         <textarea name="Content" class="form-control" rows="4" placeholder="Viết cảm nhận của bạn..." required></textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Ảnh minh họa (tối đa 3 ảnh)</label>
+                        <label>Ảnh minh họa (tối đa 3 ảnh)</label>
                         <input type="file" name="Images" multiple class="form-control" accept="image/*" max="3">
-                        <div class="form-text">Bạn có thể tải lên tối đa 3 ảnh</div>
+                        <div class="form-hint">Bạn có thể tải lên tối đa 3 ảnh</div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                    <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-submit">Gửi đánh giá</button>
                 </div>
             </form>
         </div>
@@ -345,102 +340,516 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body text-center">
-                <img src="" id="modalImage" class="img-fluid" style="max-height: 80vh;">
+                <img src="" id="modalImage" class="img-fluid">
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-        
+    <script>
+        // Đổi ảnh chính khi click thumbnail
+        function changeMainImage(src) {
+            document.getElementById('mainProductImage').src = src;
+            document.querySelectorAll('.gallery-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
 
-        <script>
-            // Đổi ảnh chính khi click thumbnail
-            function changeMainImage(src) {
-                document.getElementById('mainProductImage').src = src;
-            }
+        // Mở ảnh lớn trong modal
+        function openImageModal(src) {
+            document.getElementById('modalImage').src = src;
+            new bootstrap.Modal(document.getElementById('imageModal')).show();
+        }
 
-            // Mở ảnh lớn trong modal
-            function openImageModal(src) {
-                document.getElementById('modalImage').src = src;
-                new bootstrap.Modal(document.getElementById('imageModal')).show();
-            }
+        // Tăng/giảm số lượng sản phẩm
+        function increaseQuantity() {
+            const input = document.getElementById('quantityInput');
+            const max = parseInt(input.max);
+            if (parseInt(input.value) < max) input.value = parseInt(input.value) + 1;
+        }
 
-            // Tăng/giảm số lượng sản phẩm
-            function increaseQuantity() {
-                const input = document.getElementById('quantityInput');
-                const max = parseInt(input.max);
-                if (parseInt(input.value) < max) input.value = parseInt(input.value) + 1;
-            }
+        function decreaseQuantity() {
+            const input = document.getElementById('quantityInput');
+            if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+        }
 
-            function decreaseQuantity() {
-                const input = document.getElementById('quantityInput');
-                if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
-            }
+        // Chọn sao đánh giá
+        document.addEventListener("DOMContentLoaded", function () {
+            const stars = document.querySelectorAll('.star');
+            const ratingInput = document.getElementById('ratingValue');
+            const defaultRating = parseInt(ratingInput.value || "5");
 
-            // Chọn sao đánh giá
-            document.addEventListener("DOMContentLoaded", function () {
-                const stars = document.querySelectorAll('.star');
-                const ratingInput = document.getElementById('ratingValue');
-                const defaultRating = parseInt(ratingInput.value || "5");
-
-                // Khởi tạo sao mặc định
-                stars.forEach(star => {
-                    const val = parseInt(star.getAttribute('data-value'));
-                    if (val <= defaultRating) {
-                        star.classList.add('text-warning');
-                    }
-                });
-
-                // Gán sự kiện click
-                stars.forEach(star => {
-                    star.addEventListener('click', function () {
-                        const value = this.getAttribute('data-value');
-                        ratingInput.value = value;
-
-                        stars.forEach(s => {
-                            const v = s.getAttribute('data-value');
-                            if (v <= value) {
-                                s.classList.add('text-warning');
-                            } else {
-                                s.classList.remove('text-warning');
-                            }
-                        });
-                    });
-                });
-
-                // Giới hạn số ảnh upload trong modal review
-                const imageInput = document.querySelector('input[name="Images"]');
-                if (imageInput) {
-                    imageInput.addEventListener('change', function () {
-                        if (this.files.length > 3) {
-                            alert("Chỉ được chọn tối đa 3 ảnh.");
-                            this.value = "";
-                        }
-                    });
+            // Khởi tạo sao mặc định
+            stars.forEach(star => {
+                const val = parseInt(star.getAttribute('data-value'));
+                if (val <= defaultRating) {
+                    star.classList.add('active');
                 }
             });
-        </script>
 
-        <style>
-            .thumbnail img:hover {
-                border-color: #0d6efd !important;
+            // Gán sự kiện click
+            stars.forEach(star => {
+                star.addEventListener('click', function () {
+                    const value = this.getAttribute('data-value');
+                    ratingInput.value = value;
+
+                    stars.forEach(s => {
+                        const v = s.getAttribute('data-value');
+                        if (v <= value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // Giới hạn số ảnh upload trong modal review
+            const imageInput = document.querySelector('input[name="Images"]');
+            if (imageInput) {
+                imageInput.addEventListener('change', function () {
+                    if (this.files.length > 3) {
+                        alert("Chỉ được chọn tối đa 3 ảnh.");
+                        this.value = "";
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .main-image-container {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 500px;
+        }
+
+        .main-product-image {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .gallery-thumbs {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .gallery-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+            .gallery-item.active {
+                border-color: #f04c2f;
             }
 
-            .star {
-                color: #dee2e6;
+            .gallery-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
 
-            .star.text-warning {
-                color: #ffc107 !important;
+        .product-details-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .product-name {
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .rating-stars {
+            color: #ffc107;
+            font-size: 1.1rem;
+        }
+
+            .rating-stars.large {
+                font-size: 1.5rem;
+                margin: 10px 0;
             }
+
+        .review-count {
+            color: #718096;
+            margin-left: 10px;
+        }
+
+        .price-section {
+            padding: 15px 0;
+            border-top: 1px dashed #e2e8f0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #a0aec0;
+            font-size: 1.1rem;
+            margin-right: 10px;
+        }
+
+        .current-price {
+            color: #f04c2f;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-right: 15px;
+        }
+
+        .discount-badge {
+            background: #fffaf0;
+            color: #dd6b20;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 1px solid #fed7aa;
+        }
+
+        .product-meta {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            color: #4a5568;
+        }
+
+        .product-description {
+            color: #4a5568;
+            line-height: 1.7;
+        }
+
+        .add-to-cart-form {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .quantity-control {
+            display: flex;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .btn-quantity {
+            width: 40px;
+            height: 40px;
+            background: #edf2f7;
+            border: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-input {
+            width: 60px;
+            height: 40px;
+            border: none;
+            text-align: center;
+            font-weight: 600;
+            border-left: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .btn-add-to-cart {
+            background: #f04c2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-left: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+            .btn-add-to-cart:hover {
+                background: #d14028;
+                transform: translateY(-2px);
+            }
+
+            .btn-add-to-cart:disabled {
+                background: #cbd5e0;
+            }
+
+        .product-tabs {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .nav-tabs {
+            padding: 0 20px;
+            border-bottom: 1px solid #edf2f7;
+        }
 
             .nav-tabs .nav-link {
+                padding: 15px 20px;
+                color: #718096;
+                font-weight: 600;
+                border: none;
+                position: relative;
+            }
+
+                .nav-tabs .nav-link.active {
+                    color: #f04c2f;
+                }
+
+                    .nav-tabs .nav-link.active::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -1px;
+                        left: 0;
+                        width: 100%;
+                        height: 3px;
+                        background: #f04c2f;
+                    }
+
+        .tab-content {
+            padding: 30px;
+        }
+
+        .rating-summary-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .average-rating {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            line-height: 1;
+        }
+
+        .btn-review {
+            background: #f04c2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .login-prompt {
+            background: #ebf8ff;
+            color: #2b6cb0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .login-link {
+            color: #2b6cb0;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .review-card {
+            padding: 20px;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+            .review-card:last-child {
+                border-bottom: none;
+            }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .review-author {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .review-date {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .review-content {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .review-images {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+            .review-images img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.3s ease;
+            }
+
+                .review-images img:hover {
+                    transform: scale(1.05);
+                }
+
+        .admin-replies {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .admin-reply {
+            padding: 10px 0;
+        }
+
+            .admin-reply:not(:last-child) {
+                border-bottom: 1px dashed #e2e8f0;
+            }
+
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .admin-actions {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .reply-form .input-group {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .btn-reply {
+            background: #f04c2f;
+            color: white;
+            border: none;
+            padding: 0 15px;
+        }
+
+        .btn-delete {
+            background: none;
+            color: #e53e3e;
+            border: 1px solid #e53e3e;
+            padding: 5px 15px;
+            border-radius: 6px;
+        }
+
+        .empty-reviews {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+            .empty-reviews i {
+                font-size: 4rem;
+                color: #cbd5e0;
+                margin-bottom: 20px;
+            }
+
+        .product-specs {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+            .product-specs tr:not(:last-child) {
+                border-bottom: 1px solid #edf2f7;
+            }
+
+            .product-specs th {
+                text-align: left;
+                padding: 12px 0;
+                color: #4a5568;
+                font-weight: 500;
+                width: 40%;
+            }
+
+            .product-specs td {
+                padding: 12px 0;
                 font-weight: 500;
             }
 
-            .rating-stars .star {
-                margin-right: 5px;
+        .stock-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+            .stock-badge.in-stock {
+                background: #f0fff4;
+                color: #38a169;
+                border: 1px solid #c6f6d5;
             }
-        </style>
+
+            .stock-badge.out-of-stock {
+                background: #fff5f5;
+                color: #e53e3e;
+                border: 1px solid #fed7d7;
+            }
+
+        .product-full-description {
+            margin-top: 30px;
+        }
+
+        .rating-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+            .rating-input .star {
+                font-size: 2rem;
+                color: #e2e8f0;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+                .rating-input .star.active {
+                    color: #ffc107;
+                }
+
+        .btn-cancel {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .btn-submit {
+            background: #f04c2f;
+            color: white;
+        }
+    </style>
 }

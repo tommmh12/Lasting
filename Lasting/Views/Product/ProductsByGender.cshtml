@@ -1,39 +1,165 @@
 ﻿@model IEnumerable<Lasting.Models.Product>
 
 @{
-    ViewData["Title"] = ViewContext.RouteData.Values["action"].ToString() == "MaleProducts" ? "Sản phẩm dành cho Nam" : "Sản phẩm dành cho Nữ";
+    var gender = ViewContext.RouteData.Values["action"].ToString() == "MaleProducts" ? "nam" : "nữ";
+    ViewData["Title"] = $"Sản phẩm dành cho {gender.ToUpper()}";
 }
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4 text-primary fw-bold">@ViewData["Title"]</h2>
-    <div class="row g-4">
-        @if (Model != null && Model.Any())
-        {
-            foreach (var product in Model)
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-gradient">SẢN PHẨM DÀNH CHO @gender.ToUpper()</h1>
+        <p class="text-muted">Bộ sưu tập giày thiết kế dành riêng cho @gender</p>
+        <div class="d-flex justify-content-center">
+            <div class="divider-gradient mx-auto"></div>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var product in Model)
             {
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/default-product.jpg" : product.ImageUrl)" class="card-img-top" alt="@product.Name" style="object-fit: cover; height: 250px;">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@product.Name</h5>
-                            <p class="card-text text-muted">@(product.OldPrice.HasValue ? $"Giá cũ: {product.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
-                            <p class="card-text fw-bold text-danger">@product.Price.ToString("N0") VNĐ</p>
-                            <a href="@Url.Action("Details", new { id = product.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
+                <div class="col">
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/default-product.jpg" : product.ImageUrl)"
+                                 alt="@product.Name">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">@product.Name</h3>
+                            <div class="product-price">
+                                @if (product.OldPrice.HasValue && product.OldPrice > 0)
+                                {
+                                    <span class="old-price">@product.OldPrice.Value.ToString("N0") đ</span>
+                                }
+                                <span class="current-price">@product.Price.ToString("N0") đ</span>
+                            </div>
+                            <a href="@Url.Action("Details", new { id = product.Id })" class="btn btn-view-details">
+                                <i class="bi bi-eye me-1"></i> Xem chi tiết
+                            </a>
                         </div>
                     </div>
                 </div>
             }
-        }
-        else
-        {
-            <div class="text-center">
-                <p class="text-muted">Không có sản phẩm để hiển thị.</p>
-            </div>
-        }
-    </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-products">
+            <i class="bi bi-gender-@gender"></i>
+            <h4>Không có sản phẩm dành cho @gender</h4>
+            <p class="text-muted">Chúng tôi sẽ cập nhật sớm nhất</p>
+        </div>
+    }
 </div>
 
-@section Scripts {
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-}
+<style>
+    .text-gradient {
+        background: linear-gradient(90deg, #f04c2f, #ff6b35);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .divider-gradient {
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #f04c2f, #ff6b35);
+        border-radius: 2px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+    .product-image {
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9f9f9;
+    }
+
+        .product-image img {
+            max-height: 100%;
+            max-width: 100%;
+            transition: transform 0.5s ease;
+        }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-info {
+        padding: 20px;
+    }
+
+    .product-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #2d3748;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-price {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .current-price {
+        color: #f04c2f;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .old-price {
+        text-decoration: line-through;
+        color: #a0aec0;
+        font-size: 0.9rem;
+    }
+
+    .btn-view-details {
+        width: 100%;
+        background: rgba(240, 76, 47, 0.1);
+        color: #f04c2f;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-view-details:hover {
+            background: #f04c2f;
+            color: white;
+        }
+
+    .empty-products {
+        text-align: center;
+        padding: 60px 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+
+        .empty-products i {
+            font-size: 4rem;
+            color: #cbd5e0;
+            margin-bottom: 20px;
+        }
+</style>

@@ -4,67 +4,157 @@
     ViewData["Title"] = "Sản phẩm mới về";
 }
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4 text-primary fw-bold">SẢN PHẨM MỚI VỀ</h2>
-    <div class="row g-4">
-        @if (Model != null && Model.Any())
-        {
-            var product1 = Model.FirstOrDefault();
-            if (product1 != null)
-            {
-                <div class="col-md-6">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="@(string.IsNullOrEmpty(product1.ImageUrl) ? "/images/default-product.jpg" : product1.ImageUrl)" class="card-img-top" alt="@product1.Name" style="object-fit: cover; height: 300px;">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@product1.Name</h5>
-                            <p class="card-text text-muted">@(product1.OldPrice.HasValue ? $"Giá cũ: {product1.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
-                            <p class="card-text fw-bold text-danger">@product1.Price.ToString("N0") VNĐ</p>
-                            <a href="@Url.Action("Details", new { id = product1.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            }
-            var product2 = Model.Skip(1).FirstOrDefault();
-            if (product2 != null)
-            {
-                <div class="col-md-6">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="@(string.IsNullOrEmpty(product2.ImageUrl) ? "/images/default-product.jpg" : product2.ImageUrl)" class="card-img-top" alt="@product2.Name" style="object-fit: cover; height: 300px;">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@product2.Name</h5>
-                            <p class="card-text text-muted">@(product2.OldPrice.HasValue ? $"Giá cũ: {product2.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
-                            <p class="card-text fw-bold text-danger">@product2.Price.ToString("N0") VNĐ</p>
-                            <a href="@Url.Action("Details", new { id = product2.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            }
-            var product3 = Model.Skip(2).FirstOrDefault();
-            if (product3 != null)
-            {
-                <div class="col-md-6 offset-md-3 mt-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="@(string.IsNullOrEmpty(product3.ImageUrl) ? "/images/default-product.jpg" : product3.ImageUrl)" class="card-img-top" alt="@product3.Name" style="object-fit: cover; height: 300px;">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@product3.Name</h5>
-                            <p class="card-text text-muted">@(product3.OldPrice.HasValue ? $"Giá cũ: {product3.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
-                            <p class="card-text fw-bold text-danger">@product3.Price.ToString("N0") VNĐ</p>
-                            <a href="@Url.Action("Details", new { id = product3.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="text-center">
-                <p class="text-muted">Không có sản phẩm mới để hiển thị.</p>
-            </div>
-        }
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-gradient">SẢN PHẨM MỚI VỀ</h1>
+        <div class="d-flex justify-content-center">
+            <div class="divider-gradient mx-auto"></div>
+        </div>
     </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4 justify-content-center">
+            @foreach (var product in Model.Take(3))
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="product-card">
+                        <div class="product-badge">
+                            <span class="badge bg-danger">Mới</span>
+                        </div>
+                        <div class="product-image">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/default-product.jpg" : product.ImageUrl)"
+                                 alt="@product.Name" class="img-fluid">
+                        </div>
+                        <div class="product-info p-4">
+                            <h3 class="product-title">@product.Name</h3>
+
+                            <div class="d-flex align-items-center justify-content-between mt-3">
+                                <div class="price-group">
+                                    @if (product.OldPrice.HasValue && product.OldPrice > product.Price)
+                                    {
+                                        <div class="old-price">@product.OldPrice.Value.ToString("N0") đ</div>
+                                        <div class="current-price">@product.Price.ToString("N0") đ</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="current-price">@product.Price.ToString("N0") đ</div>
+                                    }
+                                </div>
+                                <a href="@Url.Action("Details", new { id = product.Id })" class="btn btn-icon">
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="bi bi-box-seam display-4 text-muted"></i>
+                <h4 class="mt-3">Không có sản phẩm mới</h4>
+                <p class="text-muted">Hiện chưa có sản phẩm mới về, vui lòng quay lại sau!</p>
+            </div>
+        </div>
+    }
 </div>
 
-@section Scripts {
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-}
+<style>
+    .text-gradient {
+        background: linear-gradient(90deg, #f04c2f, #ff6b35);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .divider-gradient {
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, #f04c2f, #ff6b35);
+        border-radius: 2px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+    }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 2;
+    }
+
+    .product-image {
+        height: 300px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9f9f9;
+    }
+
+        .product-image img {
+            transition: transform 0.5s ease;
+            max-height: 100%;
+        }
+
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+
+    .product-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .price-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .old-price {
+        text-decoration: line-through;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .current-price {
+        color: #f04c2f;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .btn-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f04c2f;
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+        .btn-icon:hover {
+            background: #d14028;
+            transform: scale(1.1);
+        }
+</style>
