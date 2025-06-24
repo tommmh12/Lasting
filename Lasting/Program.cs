@@ -92,6 +92,11 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapControllerRoute(
+    name: "profile",
+    pattern: "Profile/{action=Index}",
+    defaults: new { controller = "Profile" });
+
 app.MapRazorPages();
 
 // Seed dữ liệu ban đầu

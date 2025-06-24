@@ -155,5 +155,58 @@ namespace Lasting.Controllers
 
             return RedirectToAction("Details", new { id = review.ProductId });
         }
+
+        public async Task<IActionResult> NewProducts()
+        {
+            // Lấy 3 sản phẩm mới nhất
+            var newProducts = await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .Where(p => p.IsActive)
+                .OrderByDescending(p => p.CreatedDate)
+                .Take(3)
+                .ToListAsync();
+
+            if (newProducts == null || !newProducts.Any())
+            {
+                return NotFound("Không có sản phẩm mới.");
+            }
+
+            return View(newProducts);
+        }
+        public async Task<IActionResult> MaleProducts()
+        {
+            var maleProducts = await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.Category != null && p.Category.Name == "Nam")
+                .OrderByDescending(p => p.CreatedDate)
+                .ToListAsync();
+
+            if (!maleProducts.Any()) // Chỉ kiểm tra .Any() vì maleProducts không null
+            {
+                return NotFound("Không có sản phẩm cho nam.");
+            }
+
+            return View("ProductsByGender", maleProducts);
+        }
+
+        public async Task<IActionResult> FemaleProducts()
+        {
+            var femaleProducts = await _context.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.Category != null && p.Category.Name == "Nữ")
+                .OrderByDescending(p => p.CreatedDate)
+                .ToListAsync();
+
+            if (!femaleProducts.Any())
+            {
+                return NotFound("Không có sản phẩm cho nữ.");
+            }
+
+            return View("ProductsByGender", femaleProducts);
+
+        }
     }
 }

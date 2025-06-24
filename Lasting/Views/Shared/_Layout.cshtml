@@ -111,9 +111,9 @@
             <div class="collapse navbar-collapse" id="otiNavbar">
                 <!-- CENTER MENU -->
                 <ul class="navbar-nav mx-auto gap-3">
-                    <li class="nav-item"><a class="nav-link fw-semibold" href="#">Mới về</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Nam</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Nữ</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold" asp-controller="Product" asp-action="NewProducts">Mới về</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Product" asp-action="MaleProducts">Nam</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Product" asp-action="FemaleProducts">Nữ</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="#">Giảm giá</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="MyOrders">Đơn hàng</a></li>
                     <li class="nav-item">
@@ -137,6 +137,7 @@
                     @if (User.Identity.IsAuthenticated)
                     {
                         <div class="dropdown">
+
                             <a class="text-dark text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle fs-5"></i>
                             </a>
@@ -151,6 +152,30 @@
                                     <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
                                         <button type="submit" class="dropdown-item">Đăng xuất</button>
                                     </form>
+
+                            <a href="#" class="text-dark text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-5"></i>
+                                @User.Identity.Name
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                                        <i class="bi bi-person me-2"></i>Thông tin cá nhân
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Profile" asp-action="ChangePassword">
+                                        <i class="bi bi-key me-2"></i>Đổi mật khẩu
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form asp-area="Identity" asp-page="/Account/Logout" method="post">
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                        </button>
+
+                                    </form>
                                 </li>
                             </ul>
                         </div>
@@ -158,14 +183,16 @@
 
                     else
                     {
+                        <a class="text-dark text-decoration-none" asp-area="Identity" asp-page="/Account/Login">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                        </a>
                         <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-dark btn-sm me-1">Tham gia</a>
-                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-dark btn-sm">Đăng nhập</a>
                     }
                 </div>
             </div>
         </div>
     </nav>
-
+ 
     <!-- MAIN CONTENT -->
     <main class="container mt-4">
         @RenderBody()
