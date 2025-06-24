@@ -1,0 +1,30 @@
+﻿@model ApplicationUser
+
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4>Thông tin cá nhân</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Họ tên:</dt>
+                <dd class="col-sm-9">@Model.FullName</dd>
+
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Số điện thoại:</dt>
+                <dd class="col-sm-9">@(Model.PhoneNumber ?? "Chưa cập nhật")</dd>
+            </dl>
+
+            <div class="mt-4">
+                <a asp-action="Edit" class="btn btn-primary">Chỉnh sửa thông tin</a>
+                <a asp-action="ChangePassword" class="btn btn-secondary">Đổi mật khẩu</a>
+            </div>
+        </div>
+    </div>
+</div>
