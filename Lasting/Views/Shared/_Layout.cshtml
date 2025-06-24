@@ -24,24 +24,24 @@
             transition: color 0.3s;
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0%;
-            height: 2px;
-            bottom: 0;
-            left: 0;
-            background-color: #f04c2f;
-            transition: width 0.3s ease-in-out;
-        }
+            .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0%;
+                height: 2px;
+                bottom: 0;
+                left: 0;
+                background-color: #f04c2f;
+                transition: width 0.3s ease-in-out;
+            }
 
-        .nav-link:hover {
-            color: #f04c2f !important;
-        }
+            .nav-link:hover {
+                color: #f04c2f !important;
+            }
 
-        .nav-link:hover::after {
-            width: 100%;
-        }
+                .nav-link:hover::after {
+                    width: 100%;
+                }
 
         /* Search */
         .search-box {
@@ -53,9 +53,9 @@
             transition: box-shadow 0.3s;
         }
 
-        .search-box:focus-within {
-            box-shadow: 0 0 6px rgba(240, 76, 47, 0.4);
-        }
+            .search-box:focus-within {
+                box-shadow: 0 0 6px rgba(240, 76, 47, 0.4);
+            }
 
         .search-input {
             border: none;
@@ -66,17 +66,17 @@
             transition: width 0.3s ease;
         }
 
-        .search-input:focus {
-            width: 200px;
-        }
+            .search-input:focus {
+                width: 200px;
+            }
 
         .bi {
             transition: transform 0.2s ease;
         }
 
-        .bi:hover {
-            transform: scale(1.2);
-        }
+            .bi:hover {
+                transform: scale(1.2);
+            }
 
         .btn-dark:hover {
             background: linear-gradient(90deg, #111, #f04c2f);
@@ -111,10 +111,17 @@
             <div class="collapse navbar-collapse" id="otiNavbar">
                 <!-- CENTER MENU -->
                 <ul class="navbar-nav mx-auto gap-3">
-                    <li class="nav-item"><a class="nav-link fw-semibold" href="">Mới về</a></li>
+                    <li class="nav-item"><a class="nav-link fw-semibold" href="#">Mới về</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Nam</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Nữ</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="#">Giảm giá</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="MyOrders">Đơn hàng</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Product" asp-action="Index">Sản phẩm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Cart" asp-action="Index">Giỏ hàng</a>
+                    </li>
                 </ul>
 
                 <!-- ICONS + SEARCH + USER -->
@@ -129,26 +136,14 @@
 
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <div class="dropdown">
-                                <a class="text-dark text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-person-circle fs-5"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage">Tài khoản</a>
-                                    </li>
-                                    <li>
-                                        <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
-                                            <button type="submit" class="dropdown-item">Đăng xuất</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
+                        <a asp-area="Identity" asp-page="/Account/Manage" class="text-dark text-decoration-none">
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </a>
                     }
                     else
                     {
-                            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-dark btn-sm me-1">Tham gia</a>
-                            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-dark btn-sm">Đăng nhập</a>
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-dark btn-sm me-1">Tham gia</a>
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-dark btn-sm">Đăng nhập</a>
                     }
                 </div>
             </div>

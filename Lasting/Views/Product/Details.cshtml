@@ -108,9 +108,11 @@
     <script>
         // Quantity input handling
         document.querySelectorAll('input[type=number]').forEach(input => {
-            input.addEventListener('change', function () {
+            input.addEventListener('change', function() {
                 if (this.value < 1) this.value = 1;
             });
         });
     </script>
 }
+
+
