@@ -65,20 +65,50 @@ namespace Lasting.Areas.Identity.Pages.Account
 
             [Required(ErrorMessage = "Họ tên là bắt buộc")]
             [Display(Name = "Họ tên")]
-            [StringLength(100, ErrorMessage = "Họ tên tối đa 100 ký tự")]
+            [StringLength(100)]
             public string FullName { get; set; }
 
+            [Display(Name = "Giới tính")]
+            public string? Gender { get; set; }
+
+            [Display(Name = "Ngày sinh")]
+            [DataType(DataType.Date)]
+            public DateTime? DateOfBirth { get; set; }
+
+            [Display(Name = "Địa chỉ")]
+            [StringLength(255)]
+            public string? Address { get; set; }
+
+            [Display(Name = "Thành phố")]
+            [StringLength(100)]
+            public string? City { get; set; }
+
             [Required(ErrorMessage = "Mật khẩu là bắt buộc")]
-            [StringLength(100, ErrorMessage = "Mật khẩu phải từ {2} đến {1} ký tự", MinimumLength = 6)]
+            [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu từ 6 đến 100 ký tự")]
             [DataType(DataType.Password)]
             [Display(Name = "Mật khẩu")]
             public string Password { get; set; }
+            [Required]
+            [Display(Name = "Số điện thoại")]
+            [Phone]
+            public string PhoneNumber { get; set; }
+
+            [Display(Name = "Tỉnh/Thành phố")]
+            public string Province { get; set; }
+
+            [Display(Name = "Quận/Huyện")]
+            public string District { get; set; }
+
+            [Display(Name = "Phường/Xã")]
+            public string Ward { get; set; }
+
 
             [DataType(DataType.Password)]
             [Display(Name = "Xác nhận mật khẩu")]
             [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
             public string ConfirmPassword { get; set; }
         }
+
 
         public async Task OnGetAsync(string returnUrl = null)
         {
@@ -103,8 +133,17 @@ namespace Lasting.Areas.Identity.Pages.Account
                     UserName = Input.Email,
                     Email = Input.Email,
                     FullName = Input.FullName,
+                    Gender = Input.Gender,
+                    DateOfBirth = Input.DateOfBirth,
+                    Address = Input.Address,
+                    PhoneNumber = Input.PhoneNumber,
+                    City = Input.City,
+                    Province = Input.Province,
+                    District = Input.District,
+                    Ward = Input.Ward,
                     EmailConfirmed = !_userManager.Options.SignIn.RequireConfirmedAccount
                 };
+
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
