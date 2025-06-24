@@ -1,0 +1,46 @@
+﻿@model Lasting.Models.Product
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="fas fa-eye me-2"></i>@ViewData["Title"]</h2>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Quay lại</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                            <img src="@Model.ImageUrl" class="img-fluid rounded shadow" style="max-height: 300px;" />
+                    }
+                    else
+                    {
+                            <span class="text-muted">Không có ảnh</span>
+                    }
+                </div>
+                <div class="col-md-8">
+                    <h4>@Model.Name</h4>
+                    <p class="text-muted">Danh mục: @Model.Category?.Name | Thương hiệu: @Model.Brand?.Name</p>
+
+                    <p><strong>Giá hiện tại:</strong> @Model.Price.ToString("N0") đ</p>
+                    @if (Model.OldPrice.HasValue && Model.OldPrice > Model.Price)
+                    {
+                            <p><strong>Giá cũ:</strong> <del>@Model.OldPrice.Value.ToString("N0") đ</del></p>
+                    }
+
+                    <p><strong>Tồn kho:</strong> @Model.StockQuantity</p>
+                    <p><strong>Mô tả:</strong><br />@Model.Description</p>
+
+                    <p><strong>Trạng thái:</strong> @(Model.IsActive ? "Đang bán" : "Ẩn")</p>
+                    <p><strong>Nổi bật:</strong> @(Model.IsFeatured ? "✅ Có" : "—")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -32,24 +32,46 @@ namespace Lasting.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
-            if (!await ValidateProduct(productId))
-                return NotFound();
+            var product = await _productService.GetProductByIdAsync(productId);
+            if (product == null || !product.IsActive || product.StockQuantity < quantity)
+            {
+                SetErrorMessage("Sản phẩm hiện không khả dụng hoặc không đủ tồn kho.");
+                return RedirectToCartIndex();
+            }
 
-            await ProcessAddToCart(productId, quantity);
+            var userId = GetCurrentUserId();
+            await _cartService.AddToCartAsync(userId, productId, quantity);
+            SetSuccessMessage($"Đã thêm {product.Name} vào giỏ hàng");
             return RedirectToCartIndex();
         }
 
         [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int id, bool isTempItem = false)
         {
-            await ProcessRemoveFromCart(id, isTempItem);
+            if (User.Identity.IsAuthenticated && !isTempItem)
+                await _cartService.RemoveFromCartAsync(GetCurrentUserId(), id);
+            else
+                await _cartService.RemoveTempCartItemAsync(id);
+
+            SetSuccessMessage("Đã xóa sản phẩm khỏi giỏ hàng");
             return RedirectToCartIndex();
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int id, int newQuantity, bool isTempItem = false)
         {
-            await ProcessUpdateQuantity(id, newQuantity, isTempItem);
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null || newQuantity > product.StockQuantity)
+            {
+                SetErrorMessage("Không thể cập nhật vì vượt quá số lượng tồn kho.");
+                return RedirectToCartIndex();
+            }
+
+            if (User.Identity.IsAuthenticated && !isTempItem)
+                await _cartService.UpdateQuantityAsync(GetCurrentUserId(), id, newQuantity);
+            else
+                await _cartService.UpdateTempCartItemAsync(id, newQuantity);
+
             return RedirectToCartIndex();
         }
 
@@ -79,13 +101,8 @@ namespace Lasting.Controllers
         private async Task<(object Items, string ViewName)> GetCartModel()
         {
             if (User.Identity.IsAuthenticated)
-            {
-                var items = await _cartService.GetCartItemsAsync(GetCurrentUserId());
-                return (items, "Index");
-            }
-
-            var tempItems = await _cartService.GetTempCartAsync();
-            return (tempItems, "TempCart");
+                return (await _cartService.GetCartItemsAsync(GetCurrentUserId()), "Index");
+            return (await _cartService.GetTempCartAsync(), "TempCart");
         }
 
         private async Task<bool> ValidateProduct(int productId)
@@ -147,6 +164,7 @@ namespace Lasting.Controllers
             return User.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
+
         private IActionResult RedirectToCartIndex()
         {
             return RedirectToAction("Index");
@@ -156,7 +174,7 @@ namespace Lasting.Controllers
         {
             TempData["SuccessMessage"] = message;
         }
-
+        private void SetErrorMessage(string message) => TempData["ErrorMessage"] = message;
         #endregion
     }
 }

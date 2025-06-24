@@ -32,6 +32,11 @@ namespace Lasting.Models
         public int BrandId { get; set; }
         public Brand? Brand { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Tồn kho phải từ 0 trở lên")]
+        public int StockQuantity { get; set; } = 0;
+
+        public bool IsActive { get; set; } = true;
+
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 }

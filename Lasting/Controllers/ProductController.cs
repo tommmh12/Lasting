@@ -19,6 +19,7 @@ namespace Lasting.Controllers
             var productsQuery = _context.Products
                 .Include(p => p.Brand)
                 .Include(p => p.Category)
+                .Where(p => p.IsActive) 
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))

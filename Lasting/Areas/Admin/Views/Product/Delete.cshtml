@@ -1,0 +1,68 @@
+﻿@model Lasting.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Product Details</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                        <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded" />
+                }
+                else
+                {
+                        <div class="text-muted p-5 bg-light text-center">No image available</div>
+                }
+            </div>
+            <div class="col-md-8">
+                <dl class="row">
+                    <dt class="col-sm-3">Name</dt>
+                    <dd class="col-sm-9">@Model.Name</dd>
+
+                    <dt class="col-sm-3">Price</dt>
+                    <dd class="col-sm-9">
+                        @Model.Price.ToString("C")
+                        @if (Model.OldPrice.HasValue && Model.OldPrice > 0)
+                        {
+                                <span class="text-muted ml-2"><s>@Model.OldPrice.Value.ToString("C")</s></span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Stock Quantity</dt>
+                    <dd class="col-sm-9 @(Model.StockQuantity <= 0 ? "text-danger" : "")">
+                        @Model.StockQuantity
+                    </dd>
+
+                    <dt class="col-sm-3">Category</dt>
+                    <dd class="col-sm-9">@Model.Category?.Name</dd>
+
+                    <dt class="col-sm-3">Brand</dt>
+                    <dd class="col-sm-9">@Model.Brand?.Name</dd>
+
+                    <dt class="col-sm-3">Featured</dt>
+                    <dd class="col-sm-9">@(Model.IsFeatured ? "Yes" : "No")</dd>
+
+                    <dt class="col-sm-3">Active</dt>
+                    <dd class="col-sm-9">@(Model.IsActive ? "Yes" : "No")</dd>
+
+                    <dt class="col-sm-3">Created Date</dt>
+                    <dd class="col-sm-9">@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-3">Description</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Description) ? "N/A" : Model.Description)</dd>
+                </dl>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>

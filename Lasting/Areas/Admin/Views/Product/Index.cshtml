@@ -1,0 +1,110 @@
+﻿@model IEnumerable<Lasting.Models.Product>
+
+@{
+    ViewData["Title"] = "Product Management";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Product List</h6>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </div>
+    <div class="card-body">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Featured</th>
+                        <th>Active</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.Name" style="width: 50px; height: 50px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No image</span>
+                                }
+                            </td>
+                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Brand.Name)</td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Price)
+                                @if (item.OldPrice.HasValue && item.OldPrice > 0)
+                                {
+                                    <br /><small class="text-muted"><s>@item.OldPrice.Value.ToString("C")</s></small>
+                                }
+                            </td>
+                            <td>
+                                <span class="@(item.StockQuantity <= 0 ? "text-danger" : "")">
+                                    @item.StockQuantity
+                                </span>
+                            </td>
+                            <td>
+                                <form asp-action="ToggleFeatured" method="post">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm @(item.IsFeatured ? "btn-success" : "btn-outline-secondary")">
+                                        @(item.IsFeatured ? "Yes" : "No")
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                <form asp-action="ToggleActive" method="post">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-success" : "btn-outline-secondary")">
+                                        @(item.IsActive ? "Yes" : "No")
+                                    </button>
+                                </form>
+                            </td>
+                            <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                                    <form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "order": [[8, "desc"]], // Sort by CreatedDate descending by default
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 6, 7, 9] } // Disable sorting for image, featured, active, and actions columns
+                ]
+            });
+        });
+    </script>
+}
