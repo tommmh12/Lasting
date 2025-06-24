@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Lasting.Models.Product>
+
+@{
+    ViewData["Title"] = ViewContext.RouteData.Values["action"].ToString() == "MaleProducts" ? "Sản phẩm dành cho Nam" : "Sản phẩm dành cho Nữ";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-primary fw-bold">@ViewData["Title"]</h2>
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var product in Model)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/default-product.jpg" : product.ImageUrl)" class="card-img-top" alt="@product.Name" style="object-fit: cover; height: 250px;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text text-muted">@(product.OldPrice.HasValue ? $"Giá cũ: {product.OldPrice.Value.ToString("N0")} VNĐ" : "")</p>
+                            <p class="card-text fw-bold text-danger">@product.Price.ToString("N0") VNĐ</p>
+                            <a href="@Url.Action("Details", new { id = product.Id })" class="btn btn-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center">
+                <p class="text-muted">Không có sản phẩm để hiển thị.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+}
