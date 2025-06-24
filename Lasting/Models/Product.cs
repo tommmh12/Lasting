@@ -38,5 +38,8 @@ namespace Lasting.Models
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public List<ProductReview> Reviews { get; set; } = new();
+        public List<ProductImage> Gallery { get; set; } = new();
+
     }
 }

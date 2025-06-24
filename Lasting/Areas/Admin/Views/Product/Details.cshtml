@@ -1,4 +1,6 @@
 ﻿@model Lasting.Models.Product
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
 
 @{
     ViewData["Title"] = "Chi tiết sản phẩm";
@@ -7,40 +9,119 @@
 
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold"><i class="fas fa-eye me-2"></i>@ViewData["Title"]</h2>
-        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i> Quay lại</a>
+        <h2 class="fw-bold"><i class="bi bi-eye me-2"></i>@ViewData["Title"]</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Quay lại
+        </a>
     </div>
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <div class="row">
+            <div class="row g-4">
+                <!-- Ảnh chính -->
                 <div class="col-md-4 text-center">
                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
                     {
-                            <img src="@Model.ImageUrl" class="img-fluid rounded shadow" style="max-height: 300px;" />
+                        <img src="@Model.ImageUrl" class="img-fluid rounded shadow" style="max-height: 300px;" />
                     }
                     else
                     {
-                            <span class="text-muted">Không có ảnh</span>
+                        <div class="text-muted fst-italic">Không có ảnh</div>
                     }
                 </div>
-                <div class="col-md-8">
-                    <h4>@Model.Name</h4>
-                    <p class="text-muted">Danh mục: @Model.Category?.Name | Thương hiệu: @Model.Brand?.Name</p>
 
-                    <p><strong>Giá hiện tại:</strong> @Model.Price.ToString("N0") đ</p>
+                <!-- Thông tin -->
+                <div class="col-md-8">
+                    <h4 class="fw-bold">@Model.Name</h4>
+                    <p class="text-muted">📁 @Model.Category?.Name | 🏷️ @Model.Brand?.Name</p>
+
+                    <p><strong>💵 Giá hiện tại:</strong> @Model.Price.ToString("N0") đ</p>
                     @if (Model.OldPrice.HasValue && Model.OldPrice > Model.Price)
                     {
-                            <p><strong>Giá cũ:</strong> <del>@Model.OldPrice.Value.ToString("N0") đ</del></p>
+                        <p><strong>💸 Giá cũ:</strong> <del>@Model.OldPrice.Value.ToString("N0") đ</del></p>
                     }
 
-                    <p><strong>Tồn kho:</strong> @Model.StockQuantity</p>
-                    <p><strong>Mô tả:</strong><br />@Model.Description</p>
+                    <p><strong>📦 Tồn kho:</strong> @Model.StockQuantity</p>
+                    <p><strong>📄 Mô tả:</strong><br />@Model.Description</p>
 
-                    <p><strong>Trạng thái:</strong> @(Model.IsActive ? "Đang bán" : "Ẩn")</p>
-                    <p><strong>Nổi bật:</strong> @(Model.IsFeatured ? "✅ Có" : "—")</p>
+                    <p><strong>📌 Trạng thái:</strong>
+                        <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">
+                            @(Model.IsActive ? "Đang bán" : "Đã ẩn")
+                        </span>
+                    </p>
+
+                    <p><strong>🌟 Nổi bật:</strong>
+                        <span class="badge @(Model.IsFeatured ? "bg-warning text-dark" : "bg-light text-muted")">
+                            @(Model.IsFeatured ? "Có" : "Không")
+                        </span>
+                    </p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Gallery -->
+    @if (Model.Gallery != null && Model.Gallery.Any())
+    {
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5>Ảnh phụ</h5>
+                <div class="row">
+                    @foreach (var img in Model.Gallery)
+                    {
+                        <div class="col-3 mb-2">
+                            <img src="@img.ImageUrl" class="img-fluid border rounded" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Reviews -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5>Đánh giá sản phẩm</h5>
+
+            @if (Model.Reviews != null && Model.Reviews.Any())
+            {
+                @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+                {
+                    <div class="border rounded p-3 mb-3">
+                        <p class="mb-1"><strong>@review.User?.UserName</strong> - <span class="text-muted">@review.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span></p>
+                        <p>@review.Content</p>
+
+                        @if (review.Images != null && review.Images.Any())
+                        {
+                            <div class="row mb-2">
+                                @foreach (var img in review.Images)
+                                {
+                                    <div class="col-3">
+                                        <img src="@img.ImageUrl" class="img-thumbnail" />
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (review.Replies != null && review.Replies.Any())
+                        {
+                            <div class="mt-3">
+                                @foreach (var reply in review.Replies.OrderBy(r => r.CreatedAt))
+                                {
+                                    <div class="alert alert-light border mb-2">
+                                        <strong>Phản hồi:</strong> @reply.Content <br />
+                                        <small class="text-muted">@reply.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">Chưa có đánh giá nào.</p>
+            }
         </div>
     </div>
 </div>

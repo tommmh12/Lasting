@@ -136,10 +136,26 @@
 
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <a asp-area="Identity" asp-page="/Account/Manage" class="text-dark text-decoration-none">
-                            <i class="bi bi-person-circle fs-5"></i>
-                        </a>
+                        <div class="dropdown">
+                            <a class="text-dark text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle fs-5"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage">Tài khoản</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders">Đơn hàng của tôi</a>
+                                </li>
+                                <li>
+                                    <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
+                                        <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     }
+
                     else
                     {
                         <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-dark btn-sm me-1">Tham gia</a>

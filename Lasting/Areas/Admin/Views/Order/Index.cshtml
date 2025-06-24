@@ -1,0 +1,111 @@
+﻿@model IEnumerable<Lasting.Models.Order>
+@using Lasting.Models
+
+@{
+    ViewData["Title"] = "Tất cả đơn hàng";
+
+    string GetBadge(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "bg-warning text-dark",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Shipped => "bg-info text-dark",
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="container-fluid my-4">
+    <h2 class="mb-4">📦 Danh sách đơn hàng</h2>
+
+    <!-- BỘ LỌC -->
+    <form method="get" class="row row-cols-lg-auto g-2 align-items-end mb-4">
+        <div class="col">
+            <label class="form-label">Trạng thái</label>
+            <select name="status" class="form-select">
+                <option value="">-- Tất cả --</option>
+                @foreach (OrderStatus s in Enum.GetValues(typeof(OrderStatus)))
+                {
+                        <option value="@s" selected="@(Context.Request.Query["status"] == s.ToString() ? "selected" : null)">
+                        @s
+                        </option>
+                }
+            </select>
+        </div>
+        <div class="col">
+            <label class="form-label">Từ ngày</label>
+            <input type="date" name="fromDate" class="form-control" value="@Context.Request.Query["fromDate"]" />
+        </div>
+        <div class="col">
+            <label class="form-label">Đến ngày</label>
+            <input type="date" name="toDate" class="form-control" value="@Context.Request.Query["toDate"]" />
+        </div>
+        <div class="col">
+            <label class="form-label">Mã đơn</label>
+            <input type="text" name="orderId" class="form-control" placeholder="101, 102 hoặc 10" value="@Context.Request.Query["orderId"]" />
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-outline-primary">🔍 Lọc</button>
+        </div>
+    </form>
+
+    <!-- THỐNG KÊ -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Tổng đơn hàng</h6>
+                    <h4>@ViewBag.TotalCount đơn</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Tổng doanh thu</h6>
+                    <h4>@(((decimal)ViewBag.TotalRevenue).ToString("N0")) đ</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DANH SÁCH -->
+    @if (!Model.Any())
+    {
+            <div class="alert alert-info">Chưa có đơn hàng nào.</div>
+    }
+    else
+    {
+            <table class="table table-bordered table-hover shadow-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã</th>
+                        <th>Ngày đặt</th>
+                        <th>Khách hàng</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var order in Model)
+                {
+                            <tr>
+                                <td>#@order.Id</td>
+                                <td>@order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@order.ShippingAddress?.FullName</td>
+                                <td>
+                                    <span class="badge @GetBadge(order.Status)">@order.Status</span>
+                                </td>
+                                <td>@order.TotalAmount.ToString("N0") đ</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">
+                                        Chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                }
+                </tbody>
+            </table>
+    }
+</div>

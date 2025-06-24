@@ -1,11 +1,13 @@
 ﻿using Lasting.Data;
 using Lasting.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lasting.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class CategoryController : Controller
     {
         private readonly ApplicationDbContext _context;

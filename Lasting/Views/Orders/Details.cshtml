@@ -1,24 +1,67 @@
 ﻿@model Lasting.Models.Order
-
+@using Lasting.Models
 @{
     ViewData["Title"] = "Chi tiết đơn hàng";
+
+    int GetProgress(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => 20,
+        OrderStatus.Processing => 40,
+        OrderStatus.Shipped => 70,
+        OrderStatus.Delivered => 100,
+        OrderStatus.Cancelled => 100,
+        _ => 0
+    };
+    string GetProgressClass(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "bg-warning",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Shipped => "bg-info",
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
 }
 
 <div class="container my-5">
-    <h2 class="mb-4 text-center">🧾 Đơn hàng #@Model.Id</h2>
+    <h2 class="mb-5 text-center">🧾 Đơn hàng #@Model.Id</h2>
 
-    <div class="row mb-4">
+    <div class="row g-4 mb-5">
+        <!-- Thông tin đơn hàng -->
         <div class="col-md-6">
-            <h5>📦 Thông tin đơn hàng</h5>
-            <p><strong>Ngày đặt:</strong> @Model.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
-            <p><strong>Trạng thái:</strong> <span class="badge bg-success">@Model.Status</span></p>
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">📦 Thông tin đơn hàng</h5>
+                    <p><i class="bi bi-calendar2-week me-2"></i><strong>Ngày đặt:</strong> @Model.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><i class="bi bi-flag-fill me-2"></i><strong>Trạng thái:</strong> <span class="badge @GetProgressClass(Model.Status)">@Model.Status</span></p>
+
+                    <div class="mt-4">
+                        <label><strong>Tiến trình đơn hàng:</strong></label>
+                        <div class="progress">
+                            <div class="progress-bar @GetProgressClass(Model.Status)"
+                                 role="progressbar"
+                                 style="width: @GetProgress(Model.Status)%">
+                                @Model.Status
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <!-- Địa chỉ giao hàng -->
         <div class="col-md-6">
-            <h5>🚚 Địa chỉ giao hàng</h5>
-            <p><strong>@Model.ShippingAddress.FullName</strong></p>
-            <p>@Model.ShippingAddress.AddressLine1 @Model.ShippingAddress.AddressLine2</p>
-            <p>@Model.ShippingAddress.City</p>
-            <p>📞 @Model.ShippingAddress.PhoneNumber</p>
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">🚚 Địa chỉ giao hàng</h5>
+                    <ul class="list-unstyled lh-lg mb-0">
+                        <li><i class="bi bi-person-circle me-2"></i><strong>@Model.ShippingAddress.FullName</strong></li>
+                        <li><i class="bi bi-geo-alt-fill me-2 text-danger"></i> @Model.ShippingAddress.AddressLine1 @Model.ShippingAddress.AddressLine2</li>
+                        <li><i class="bi bi-building me-2 text-muted"></i> @Model.ShippingAddress.City</li>
+                        <li><i class="bi bi-telephone-fill me-2 text-success"></i> @Model.ShippingAddress.PhoneNumber</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -35,12 +78,12 @@
         <tbody>
             @foreach (var item in Model.OrderItems)
             {
-                <tr>
-                    <td>@item.Product?.Name</td>
-                    <td>@item.Price.ToString("N0") đ</td>
-                    <td>@item.Quantity</td>
-                    <td>@(item.Price * item.Quantity).ToString("N0") đ</td>
-                </tr>
+                    <tr>
+                        <td>@item.Product?.Name</td>
+                        <td>@item.Price.ToString("N0") đ</td>
+                        <td>@item.Quantity</td>
+                        <td>@(item.Price * item.Quantity).ToString("N0") đ</td>
+                    </tr>
             }
         </tbody>
         <tfoot>
@@ -51,12 +94,50 @@
         </tfoot>
     </table>
 
-    <div class="mt-4 text-end">
-        <a asp-action="DownloadInvoice" asp-route-id="@Model.Id" class="btn btn-danger me-2">
-            🧾 Xuất hóa đơn PDF
-        </a>
+    <div class="mt-5 d-flex justify-content-end gap-2 flex-wrap">
+        @if (Model.Status == OrderStatus.Pending || Model.Status == OrderStatus.Processing)
+        {
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                ⛔ Hủy đơn hàng
+            </button>
+        }
+
+        @if (Model.Status == OrderStatus.Delivered)
+        {
+            <a asp-action="DownloadInvoice" asp-route-id="@Model.Id" class="btn btn-danger">
+                🧾 Xuất hóa đơn PDF
+            </a>
+        }
+
         <a asp-action="MyOrders" class="btn btn-secondary">
             ← Quay lại danh sách đơn
         </a>
+    </div>
+
+
+
+    <!-- Modal Hủy đơn hàng -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-action="Cancel" asp-route-id="@Model.Id" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cancelModalLabel">Xác nhận hủy đơn hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Bạn có chắc chắn muốn hủy đơn hàng <strong>#@Model.Id</strong> không?</p>
+                        <div class="mb-3">
+                            <label for="CancelReason" class="form-label">Lý do hủy (không bắt buộc):</label>
+                            <textarea name="CancelReason" class="form-control" rows="3" placeholder="Nhập lý do nếu có..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-danger">Xác nhận hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
