@@ -1,0 +1,32 @@
+﻿@model ApplicationUser
+
+@{
+    ViewData["Title"] = "Chi tiết Khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Thông tin khách hàng</h6>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Họ tên:</dt>
+            <dd class="col-sm-9">@Model.FullName</dd>
+
+            <dt class="col-sm-3">Email:</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Số điện thoại:</dt>
+            <dd class="col-sm-9">@(Model.PhoneNumber ?? "Chưa cập nhật")</dd>
+
+            <dt class="col-sm-3">Email xác nhận:</dt>
+            <dd class="col-sm-9">@(Model.EmailConfirmed ? "Đã xác nhận" : "Chưa xác nhận")</dd>
+        </dl>
+
+        <div class="mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Sửa thông tin</a>
+            <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </div>
+</div>
